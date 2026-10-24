@@ -2,7 +2,18 @@
 
 **Devices:** Raspberry Pi OS, and other Debian-based Linux with systemd (Ubuntu, Debian). Needs SSH enabled on the Pi (Raspberry Pi Imager > OS customisation > Services, or `sudo raspi-config` > Interface Options > SSH) and your own login with sudo, for setup.
 
-**What the account can do:** with sudo (the default), anything on the Pi: install packages, change services, read every file. Without sudo (`--no-sudo`), only what a normal user can: its own home folder, readable files, running programs; add it to groups (`gpio`, `i2c`, `video`, ...) for hardware it needs. Either way: no password, no terminal, no port or agent forwarding, and only while you have access on.
+**The risk:** while access is on, the Pi is a way around the workstation's gateway. Anything the agent can run there, it can use to send data anywhere the Pi can reach, past the allowlist. The defaults are set against that.
+
+**What the account can do:**
+
+| Setting | Default | With the option |
+|---|---|---|
+| sudo | **none**: only what a normal user can (its home folder, readable files, running programs; add it to groups such as `gpio`, `i2c`, `video` for hardware) | `--sudo`: anything on the Pi, including lifting the network block below |
+| Network | **blocked**: a firewall rule for its user stops it opening connections; its SSH sessions and localhost still work. Installs and downloads go through you | `--internet`: it can reach anything the Pi can, so the gateway no longer limits it |
+
+Either way: no password, no terminal, no port or agent forwarding, and only while you have access on. Re-running the setup script applies the options you give it now (leaving out `--sudo` removes sudo).
+
+Pick `--sudo` or `--internet` only when the project needs it, and keep access sessions short.
 
 Adapted from [philco/scripts/remote-access](https://github.com/andrewmherren/philco/tree/main/scripts/remote-access): the same account and on/off design, plus expiry, a restricted key, the gateway opening and a `remove` command.
 
@@ -20,7 +31,7 @@ From **Windows PowerShell**, with the real values:
    ```powershell
    ssh -t <you>@<ip> "sudo bash /tmp/setup-agent-account.sh --key-file /tmp/<name>-agent.pub --from <from-ip> --user <account> --duration <duration>; rm /tmp/setup-agent-account.sh /tmp/<name>-agent.pub"
    ```
-   Leave out `--from` if you chose not to restrict it; add `--no-sudo` for an account without sudo. Note the host key fingerprints it prints.
+   Leave out `--from` if you chose not to restrict it; add `--sudo` or `--internet` only if you chose them. Note the host key fingerprints it prints.
 4. **Turn access on:** `ssh -t <you>@<ip> sudo agent-access on`, then tell the agent to check the connection, and compare the fingerprint it shows with step 3's.
 
 ## Removing it

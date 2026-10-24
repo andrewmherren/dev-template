@@ -2,8 +2,11 @@
 # Sets up an SSH account for a coding agent on a Raspberry Pi (Raspberry Pi OS, or any Debian-based
 # system with systemd). Run on the device as root; safe to re-run. Access starts OFF.
 #   sudo bash setup-agent-account.sh --key-file agent-key.pub [--from <ip>] [--user claude-agent]
-#                                    [--duration 2h] [--no-sudo]
+#                                    [--duration 2h] [--sudo] [--internet]
 # Afterwards, on the device: sudo agent-access on [duration] | off | status | remove
+# By default the account has no sudo and can't open network connections from the device (a
+# firewall rule for its user): with either, the device becomes a way around the workstation's
+# gateway while access is on. --sudo also lets it lift that rule.
 # Adapted from github.com/andrewmherren/philco scripts/remote-access.
 set -euo pipefail
 
@@ -11,7 +14,8 @@ SERVICE_USER=claude-agent
 DURATION=2h
 FROM=
 KEY_FILE=
-SUDO=yes
+SUDO=no
+INTERNET=no
 
 die() { echo "setup-agent-account: $*" >&2; exit 1; }
 
@@ -21,7 +25,8 @@ while [ $# -gt 0 ]; do
         --from) FROM=${2:-}; shift 2 ;;
         --user) SERVICE_USER=${2:-}; shift 2 ;;
         --duration) DURATION=${2:-}; shift 2 ;;
-        --no-sudo) SUDO=no; shift ;;
+        --sudo) SUDO=yes; shift ;;
+        --internet) INTERNET=yes; shift ;;
         *) die "unknown option: $1" ;;
     esac
 done
@@ -54,6 +59,8 @@ chmod 600 /etc/agent-access/key
 cat > /etc/agent-access/config <<EOF
 SERVICE_USER=$SERVICE_USER
 DEFAULT_DURATION=$DURATION
+SUDO=$SUDO
+INTERNET=$INTERNET
 EOF
 
 SUDOERS=/etc/sudoers.d/90-$SERVICE_USER
@@ -64,7 +71,53 @@ if [ $SUDO = yes ]; then
     visudo -cqf "$SUDOERS.tmp" || { rm -f "$SUDOERS.tmp"; die "sudoers check failed; nothing changed"; }
     mv "$SUDOERS.tmp" "$SUDOERS"
 else
+    echo "== No sudo"
     rm -f "$SUDOERS"
+fi
+
+FIREWALL_UNIT=/etc/systemd/system/agent-access-firewall.service
+if [ $INTERNET = no ]; then
+    echo "== Network: the account can't open connections (replies on its SSH sessions, and localhost, still work)"
+    command -v nft > /dev/null || { apt-get update -q && apt-get install -y -q nftables; } > /dev/null
+    NFT=$(command -v nft)
+    # A table of its own, so the device's other firewall rules aren't touched. Re-loading it replaces it.
+    cat > /etc/agent-access/firewall.nft <<EOF
+table inet agent_access
+delete table inet agent_access
+table inet agent_access {
+    chain output {
+        type filter hook output priority 0; policy accept;
+        meta skuid "$SERVICE_USER" ct state established,related accept
+        meta skuid "$SERVICE_USER" oif "lo" accept
+        meta skuid "$SERVICE_USER" counter reject
+    }
+}
+EOF
+    cat > "$FIREWALL_UNIT" <<EOF
+[Unit]
+Description=Keep the coding agent's account ($SERVICE_USER) from opening network connections
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=$NFT -f /etc/agent-access/firewall.nft
+ExecStop=$NFT delete table inet agent_access
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemctl daemon-reload
+    systemctl enable agent-access-firewall.service > /dev/null 2>&1
+    systemctl restart agent-access-firewall.service
+else
+    echo "== Network: the account may open connections from the device (--internet)"
+    if [ -e "$FIREWALL_UNIT" ]; then
+        systemctl disable --now agent-access-firewall.service > /dev/null 2>&1 || true
+        rm -f "$FIREWALL_UNIT" /etc/agent-access/firewall.nft
+        systemctl daemon-reload
+    fi
 fi
 
 echo "== The agent-access command"
@@ -88,12 +141,25 @@ revoke() {
     : > "$KEYS"
     pkill -u "$SERVICE_USER" 2> /dev/null || true   # end sessions already open
 }
+# What the account can do, in one line for `on` and `status`.
+powers() {
+    local s="no sudo" n="can't open network connections"
+    [ "$SUDO" = yes ] && s="full sudo"
+    [ "$INTERNET" = yes ] && n="CAN open network connections, so it could carry data past the gateway"
+    [ "$SUDO" = yes ] && [ "$INTERNET" = no ] && n="network blocked, but sudo could lift that"
+    echo "$s; $n"
+}
 
 case "${1:-status}" in
 on)
     duration=${2:-$DEFAULT_DURATION}
     [[ $duration =~ ^([0-9]+(min|m|h)|forever)$ ]] || { echo "duration: like 30min, 2h, or forever" >&2; exit 2; }
+    if [ "$INTERNET" = no ] && ! nft list table inet agent_access > /dev/null 2>&1; then
+        echo "The network block for $SERVICE_USER isn't loaded, so access stays off. Check: systemctl status agent-access-firewall" >&2
+        exit 1
+    fi
     install -m 600 -o "$SERVICE_USER" -g "$SERVICE_USER" /etc/agent-access/key "$KEYS"
+    echo "While on, anything in the agent's dev VM can run commands here as $SERVICE_USER ($(powers))."
     stop_timer
     if [ "$duration" = forever ]; then
         echo "$SERVICE_USER access ON, until: sudo agent-access off"
@@ -121,15 +187,19 @@ status)
     else
         echo "OFF"
     fi
+    echo "Account $SERVICE_USER: $(powers)"
     echo "Recent logins:"; journalctl -q --since -7d -g "Accepted publickey for $SERVICE_USER" 2> /dev/null | tail -n 5 || true
     ;;
 remove)
     revoke
     stop_timer
     userdel -r "$SERVICE_USER" 2> /dev/null || true
+    systemctl disable --now agent-access-firewall.service > /dev/null 2>&1 || true
+    rm -f /etc/systemd/system/agent-access-firewall.service
+    systemctl daemon-reload
     rm -rf /etc/agent-access "/etc/sudoers.d/90-$SERVICE_USER"
     rm -f /usr/local/sbin/agent-access
-    echo "Removed $SERVICE_USER, its sudo rule and agent-access."
+    echo "Removed $SERVICE_USER, its sudo rule, its network block and agent-access."
     ;;
 *)
     echo "usage: sudo agent-access on [30min|2h|forever] | off | status | remove" >&2
