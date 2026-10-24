@@ -1,0 +1,103 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git switch *)",
+      "Bash(git checkout -b *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git stash*)",
+      "Bash(git rev-parse*)",
+      "Bash(git ls-files*)",
+      "Bash(git fetch origin)",
+      "Bash(git push *)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr diff *)"
+    ],
+    "deny": [
+      "Bash(git pull*)",
+      "Bash(git remote add*)",
+      "Bash(git remote set-url*)",
+      "Bash(gh auth*)",
+      "Bash(gh pr create*)",
+      "Bash(gh pr edit*)",
+      "Bash(gh pr merge*)",
+      "Bash(gh pr close*)",
+      "Bash(gh pr comment*)",
+      "Bash(gh pr review*)",
+      "Bash(gh pr checkout*)",
+      "Bash(gh api * -X *)",
+      "Bash(gh api * --method *)",
+      "Bash(gh api * -f *)",
+      "Bash(gh api * -F *)",
+      "Bash(gh api * --field *)",
+      "Bash(gh api * --raw-field *)",
+      "Bash(gh api * --input *)",
+      "Bash(gh repo *)",
+      "Bash(gh secret *)",
+      "Bash(gh variable *)",
+      "Bash(gh workflow *)",
+      "Bash(gh run *)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/*.p12)",
+      "Read(**/*.pfx)",
+      "Read(**/*.tfvars)",
+      "Read(**/*.tfstate)",
+      "Read(**/*.tfstate.*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/credentials)",
+      "Read(~/.git-credentials)",
+      "Read(~/.netrc)",
+      "Read(~/.npmrc)",
+      "Read(~/.pypirc)",
+      "Read(~/.docker/config.json)",
+      "Read(~/.config/gh/hosts.yml)",
+      "Read(~/AppData/Roaming/GitHub CLI/hosts.yml)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Glob|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/setup/devvm/claude-user/hooks/block-secrets.js\" || { echo 'The secrets guard failed to run (is Node.js installed?), so the tool call is blocked.' >&2; exit 2; }",
+            "shell": "bash",
+            "statusMessage": "Checking against the secrets guard..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/project-template/.claude/hooks/block-secrets.sh\"",
+            "shell": "bash",
+            "statusMessage": "Checking command against the secret policy..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/project-template/.claude/hooks/guard-git-push.js\" || { echo 'The push guard failed to run (is Node.js installed?), so the command is blocked.' >&2; exit 2; }",
+            "shell": "bash",
+            "statusMessage": "Checking pushes against the push guard..."
+          }
+        ]
+      }
+    ]
+  }
+}
