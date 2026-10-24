@@ -14,6 +14,7 @@ Creates `~/projects/<name>` from `~/dev-template/project-template/`.
    - **Name:** lower-case with dashes; used for the folder and the GitHub repo. No default.
    - **Description:** one or two sentences: what it is and who it's for. No default.
    - **Stack:** default *decide later*. If they name one, record it; scaffolding is a separate piece of work, planned with them after this skill.
+   - **GitHub repo:** new or already created, public or private (default: new, private), and for private, their GitHub plan (default: Free). This decides which settings in `~/dev-template/setup/github-repo-settings.md` apply.
 2. **Copy the template:** `cp -a ~/dev-template/project-template/. ~/projects/<name>/` (the `.` keeps the dotfiles). Stop if the folder already exists.
 3. **Fill in the placeholders** in every copied file (`grep -rn '{{' .` must find nothing afterwards):
 
@@ -30,9 +31,9 @@ Creates `~/projects/<name>` from `~/dev-template/project-template/`.
 5. **next-steps/** (git-ignored, for the user):
    - `next-steps/project-view.md`, following `.claude/rules/working-style.md` > Project view: `1. (complete) Create the project from dev-template`, then `2. Choose the stack and plan the first slice`.
    - `next-steps/01-github-repo.md`:
-     1. On GitHub, create an **empty private** repo named `<name>` (no README, licence or .gitignore).
+     1. On GitHub, create an **empty** repo named `<name>`, with their visibility (no README, licence or .gitignore). Skip if it already exists.
      2. Add it to the `agent-dev VM` token: GitHub > Settings > Developer settings > Fine-grained tokens > the token > Repository access.
      3. In the VM: `cd ~/projects/<name> && git remote add origin https://github.com/<account>/<name>.git && git push -u origin main && git remote set-head origin -a`.
-     4. If your plan allows, add a ruleset on `main` (`~/dev-template/setup/README.md`, step 8): agents push feature branches, and this stops anything pushing straight to `main`.
+     4. **Repo settings**, after the first push: a short checklist of only the settings `github-repo-settings.md` marks as available for their visibility and plan (ruleset, Actions, security, general), each one line with where to click, linking that file for the details. If the ruleset isn't available, say so: the VM's push guard is then the only thing stopping a push to `main`.
 6. **Git:** `git init -b main`, `git add -A`, and one commit: "Start <name> from dev-template".
 7. **Report**, short: the folder, the `next-steps/` file to do, and the suggested next piece of work (choosing the stack, with questions first).

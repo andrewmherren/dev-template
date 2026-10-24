@@ -27,3 +27,4 @@ Destructive: every deletion below needs the user's explicit yes, for this projec
    - Revoke the development keys that were in its `.env`.
    - Optional: `ssh agent-gateway remove <domain>` for domains only it needed (name any you know of), and delete them from `~/dev-template/setup/gateway/allowlist.txt` if listed there.
    - Optional: archive or delete the GitHub repo.
+   - Optional: the space freed in the VM stays allocated on Windows until the disk is compacted: `~/dev-template/setup/maintenance/disk-space.md`.

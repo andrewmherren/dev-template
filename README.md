@@ -23,7 +23,8 @@ A starting point for projects built with Claude Code running with a high level o
 | `setup/windows/` | VM creation (script and manual), SSH and VS Code settings for Windows |
 | `setup/gateway/` | The Alpine gateway: Squid proxy, allowlist, firewall |
 | `setup/devvm/` | The Ubuntu dev VM: bootstrap script, Claude's user-level config and skills (`/new-project`, `/import-project`, `/remove-project`, `/sync-template`, `/monthly-upkeep`) |
-| `setup/maintenance/` | Going back to a checkpoint, rebuilding |
+| `setup/maintenance/` | Going back to a checkpoint, rebuilding, getting disk space back |
+| `setup/github-repo-settings.md` | GitHub settings for repos agents push to (rulesets, Actions, security) |
 | `project-template/` | Copied into each new project by `/new-project` |
 | `.claude/skills/` | Agent skills run in this repo: `/prepare-windows`, `/finish-vm-setup` |
 

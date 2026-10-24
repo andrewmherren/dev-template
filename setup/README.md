@@ -130,7 +130,7 @@ flowchart LR
      git -C ~/dev-template config credential.helper ''          # drop gh's helper for this repo...
      git -C ~/dev-template config --add credential.helper "$H"  # ...and use the read-only token
      ```
-   - **Protect default branches** where your plan allows (rulesets need a public repo, or GitHub Pro/Team for private ones): repo > Settings > Rules > Rulesets > New branch ruleset, target the default branch, tick **Require a pull request before merging** and **Block force pushes**. Agents may push feature branches; this stops anything pushing straight to `main`.
+   - **Protect default branches** where your plan allows (rulesets need a public repo, or GitHub Pro/Team for private ones), with the settings in [github-repo-settings.md](github-repo-settings.md). Agents may push feature branches; this stops anything pushing straight to `main`. `/new-project` and `/import-project` give you the checklist for each project.
    - After pulling `dev-template` on Windows, read `git diff` of `setup/` before re-running any of its scripts there or on the gateway.
 
    The `agent-dev VM` token is the most valuable thing in the VM. Keep it to the repos it needs.
@@ -172,6 +172,7 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 - **Monthly:** in the VM, `git -C ~/dev-template pull`, then in Claude run `/monthly-upkeep`. It also refreshes Claude's user config and skills, and lists projects behind the template. (A VM set up before the skills existed needs them once: `mkdir -p ~/.claude/skills && cp -r ~/dev-template/setup/devvm/claude-user/skills/* ~/.claude/skills/`.)
 - **Every few months:** `ssh agent-gateway release-upgrade` says whether Alpine has a newer release (the weekly updates stay within the installed one, which stops getting fixes after about two years); `release-upgrade apply` moves to it.
 - **Template changed:** in a project, run `/sync-template` to bring its rules, skills and guardrails up to date (on a branch, keeping the project's own edits).
+- **Disk space on Windows:** the VM's disk file grows but never shrinks by itself: [maintenance/disk-space.md](maintenance/disk-space.md).
 - **Something seems off:** go back to the checkpoint, or rebuild: [maintenance/rebuild.md](maintenance/rebuild.md).
 
 ## Troubleshooting
