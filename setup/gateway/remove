@@ -1,0 +1,29 @@
+#!/bin/sh
+# Removes domains from the dev VM's allowlist and reloads Squid. Installed in /usr/local/bin.
+# From Windows:
+#   ssh agent-gateway remove docs.python.org    exactly as listed (.python.org is a separate entry)
+# Re-running setup-gateway.sh adds back anything still in the repo's allowlist.txt.
+set -eu
+
+LIST=/etc/squid/allowlist.txt
+
+[ $# -gt 0 ] || { echo "usage: remove DOMAIN..." >&2; exit 2; }
+
+for arg in "$@"; do
+    domain=$(echo "$arg" | tr '[:upper:]' '[:lower:]')
+    if grep -qxF "$domain" "$LIST"; then
+        tmp=$(mktemp)
+        grep -vxF "$domain" "$LIST" > "$tmp" || true
+        cat "$tmp" > "$LIST"
+        rm -f "$tmp"
+        echo "removed: $domain"
+    else
+        echo "not listed: $domain"
+    fi
+done
+
+if ! squid -k parse > /dev/null 2>&1; then
+    echo "Squid rejected the list. Fix $LIST; details: squid -k parse" >&2
+    exit 1
+fi
+squid -k reconfigure

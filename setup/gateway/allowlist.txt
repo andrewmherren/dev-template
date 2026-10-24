@@ -1,5 +1,5 @@
 # Domains the dev VM may reach, through the gateway's Squid proxy.
-# Installed as /etc/squid/allowlist.txt. Add more from Windows: ssh agent-gateway allow <domain>
+# Installed as /etc/squid/allowlist.txt. From Windows: ssh agent-gateway allow <domain>, or remove <domain>
 #
 # A leading dot also allows subdomains: .github.com covers github.com and api.github.com.
 # Don't list a domain that an entry with a leading dot already covers: Squid rejects the overlap.

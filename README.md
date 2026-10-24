@@ -9,9 +9,11 @@ A starting point for projects built with Claude Code running with a high level o
 
 | I want to | Go to |
 |---|---|
-| Set up the workstation on a new PC | [setup/README.md](setup/README.md) (the master guide) |
+| Set up the workstation on a new PC (once) | [setup/README.md](setup/README.md) > 1 (the master guide) |
 | Understand what it protects against, and what it doesn't | [setup/threat-model.md](setup/threat-model.md) |
-| Start a new project | In the dev VM, ask Claude: *"Follow ~/dev-template/AGENT_NEW_PROJECT.md"* |
+| Start a new project | [setup/README.md](setup/README.md) > 2 |
+| Bring in a repo I already have | [setup/README.md](setup/README.md) > 3 |
+| Remove a project | [setup/README.md](setup/README.md) > 4 |
 | Keep things up to date | [setup/maintenance/](setup/maintenance/) |
 
 ## Layout

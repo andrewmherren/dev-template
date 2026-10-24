@@ -1,6 +1,15 @@
 # Agent workstation: setup guide
 
-One-time setup per PC, about 2 hours. Afterwards, agents work in an isolated Linux VM that can only reach an allowlist of sites, and your Windows files, browser sessions and credentials stay out of reach. What it does and doesn't protect against: [threat-model.md](threat-model.md).
+Agents work in an isolated Linux VM that can only reach an allowlist of sites, and your Windows files, browser sessions and credentials stay out of reach. What it does and doesn't protect against: [threat-model.md](threat-model.md).
+
+| Section | When | Time |
+|---|---|---|
+| [1. Set up the workstation](#1-set-up-the-workstation-once-per-pc) | Once per PC | about 2 hours |
+| [2. Start a new project](#2-start-a-new-project) | Each new project | about 10 minutes |
+| [3. Bring in an existing project](#3-bring-in-an-existing-project) | Each repo you already have | about 10 minutes |
+| [4. Remove a project](#4-remove-a-project) | When a project ends | a few minutes |
+
+Sections 2–4 reuse the gateway, the dev VM and the GitHub token from section 1.
 
 ```mermaid
 flowchart LR
@@ -24,9 +33,13 @@ flowchart LR
 - **agent-dev:** Ubuntu Server. Agents have sudo and Docker here; that's safe because nothing in this VM can change the gateway.
 - **You** reach the gateway by SSH from Windows, and the dev VM through the gateway (VS Code Remote-SSH).
 
+## 1. Set up the workstation (once per PC)
+
 **Needs:** Windows 11 Pro, Enterprise or Education (Hyper-V); 16 GB RAM or more; about 220 GB free disk; virtualization on in the BIOS; Claude Code on Windows for step 1.
 
-## Setup
+**Where the VMs live:** any folder on a local, fixed NTFS or ReFS drive, not just `C:`. A folder inside your usual development area works. Avoid a folder that's synced (OneDrive, Dropbox), inside a git repo (including this one), on a USB or network drive, or compressed. Step 1 asks for it; the manual path sets it in [windows/hyperv-manual.md](windows/hyperv-manual.md).
+
+**Steps:**
 
 1. **Prepare (agent).** In this repo on Windows, ask Claude: *"Follow setup/windows/AGENT_PREPARE.md"*. It checks your PC, sizes the VMs, downloads and verifies the ISOs, and gives you the command for step 3. If it says Hyper-V is off, enable it as it says and reboot.
 
@@ -112,15 +125,37 @@ flowchart LR
 
 12. **Checkpoint** (admin PowerShell): `Checkpoint-VM -Name agent-gateway, agent-dev -SnapshotName clean`. A clean state to go back to.
 
-13. **Start a project:** in the VM, `cd ~ && claude`, then *"Follow ~/dev-template/AGENT_NEW_PROJECT.md"*.
+Next: [start a new project](#2-start-a-new-project) or [bring in an existing one](#3-bring-in-an-existing-project).
+
+## 2. Start a new project
+
+1. **Create it (agent):** in the VM, `cd ~ && claude`, then *"Follow ~/dev-template/AGENT_NEW_PROJECT.md"*. It asks for a name, description and stack, creates `~/projects/<name>` from the template, and makes the first commit.
+2. **Connect it to GitHub:** follow the `next-steps/01-github-repo.md` it creates: an empty private repo, added to the `agent-dev VM` token, then the first push.
+3. **Open it:** VS Code > Remote-SSH > `agent-dev` > open `~/projects/<name>`.
+4. **As it grows:** put development-only keys in `.env` (agents add placeholders to `env.example`), and allow the domains its services need ([Day to day](#day-to-day)).
+
+## 3. Bring in an existing project
+
+1. **Token:** GitHub > Settings > Developer settings > Fine-grained tokens > `agent-dev VM` > Repository access: add the repo.
+2. **Clone** (in the VM): `gh repo clone <account>/<repo> ~/projects/<repo>`.
+3. **Secrets:** create its `.env` with **development-only** keys with low spending limits ([threat-model.md](threat-model.md)).
+4. **Domains:** run its setup and tests once, then `ssh agent-gateway denied` from Windows shows what was refused; allow what it needs.
+5. **Agent rules (optional):** if it didn't start from this template, in the project ask Claude: *"Copy `.claude/rules/`, `.claude/hooks/` and `.claude/settings.json` from ~/dev-template/project-template/ into this project, merging with what's here, and fill in project.md"*. Review the diff before committing.
+
+## 4. Remove a project
+
+1. **Keep what matters:** in `~/projects/<name>`, `git status` and `git log --branches --not --remotes` show nothing unpushed. Copy out anything in `next-steps/` or `ideas/` you still want (they're not in git).
+2. **Containers and data:** `docker compose down -v --rmi local`. This deletes its volumes, so its local databases too.
+3. **Files:** `rm -rf ~/projects/<name>`.
+4. **Access:** remove the repo from the `agent-dev VM` token, and revoke the development keys that were in its `.env`.
+5. **Domains (optional):** remove ones only it needed: `ssh agent-gateway remove <domain>`. If a domain is also in [gateway/allowlist.txt](gateway/allowlist.txt), delete it there too, or re-running `setup-gateway.sh` adds it back.
+6. **Disk space (optional):** `docker system prune` in the VM. The VM's disk file on Windows doesn't shrink by itself.
 
 ## Day to day
 
-- **A site is blocked:** from Windows, `ssh agent-gateway denied` lists recent refusals; `ssh agent-gateway allow <domain>` adds one (`.domain.com` for its subdomains too). If every setup will need it, add it to [gateway/allowlist.txt](gateway/allowlist.txt) as well.
+- **A site is blocked:** from Windows, `ssh agent-gateway denied` lists recent refusals; `ssh agent-gateway allow <domain>` adds one (`.domain.com` for its subdomains too), and `ssh agent-gateway remove <domain>` takes one off. If every setup will need it, add it to [gateway/allowlist.txt](gateway/allowlist.txt) as well.
 - **Monthly:** in the VM, ask Claude: *"Follow ~/dev-template/setup/maintenance/AGENT_MONTHLY.md"*.
 - **Something seems off:** go back to the checkpoint, or rebuild: [maintenance/rebuild.md](maintenance/rebuild.md).
-- **Ending a project:** `docker compose down -v`, delete its folder, and remove the repo from the GitHub token.
-- **Bringing in an existing project:** add the repo to the token, `gh repo clone` it into `~/projects/`, and create its `.env` with development-only keys. Allow any extra domains it needs.
 
 ## Troubleshooting
 

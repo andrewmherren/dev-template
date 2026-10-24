@@ -75,7 +75,7 @@ if [ -f /etc/squid/allowlist.txt ]; then
 else
     cp allowlist.txt /etc/squid/allowlist.txt
 fi
-install -m 755 allow denied /usr/local/bin/
+install -m 755 allow remove denied /usr/local/bin/
 squid -k parse > /dev/null 2>&1 || die "Squid rejected its configuration; details: squid -k parse"
 rc-update add squid default > /dev/null
 rc-service squid restart

@@ -1,6 +1,6 @@
 # Agent workstation (dev-template/setup/README.md). Append to %USERPROFILE%\.ssh\config.
 
-# The gateway, for its admin tasks: `ssh agent-gateway allow <domain>`, `ssh agent-gateway denied`
+# The gateway, for its admin tasks: `ssh agent-gateway allow <domain>`, `remove <domain>`, `denied`
 Host agent-gateway
     HostName 192.168.200.2
     User root
