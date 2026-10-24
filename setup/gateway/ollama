@@ -15,21 +15,23 @@ on)
 # Written by `ollama on`. Plain HTTP to Ollama on Windows, inference endpoints only.
 # Pull, push, create, copy and delete are refused: they would reach registries from Windows,
 # outside the allowlist. Pull models on Windows instead.
-acl ollama_dst dst 192.168.200.1
+# The port is checked first and the host by name only (-n), so other requests never cause a
+# DNS lookup here: a lookup of an arbitrary name would carry data out through DNS.
 acl ollama_port port 11434
+acl ollama_host dstdomain -n 192.168.200.1
 acl ollama_get method GET
 acl ollama_post method POST
 acl ollama_read urlpath_regex ^/(api/(tags|version|ps)|v1/models(/[^/?]+)?)$
 acl ollama_run urlpath_regex ^/(api/(chat|generate|embed|embeddings|show)|v1/(chat/completions|completions|embeddings))$
-http_access allow dev_lan ollama_dst ollama_port ollama_get ollama_read
-http_access allow dev_lan ollama_dst ollama_port ollama_post ollama_run
+http_access allow ollama_port ollama_host dev_lan ollama_get ollama_read
+http_access allow ollama_port ollama_host dev_lan ollama_post ollama_run
 EOF
     ;;
 off)
     echo "# Ollama access is off (\`ollama on\` turns it on)." > "$CONF"
     ;;
 status)
-    if grep -q '^acl ollama_dst' "$CONF" 2>/dev/null; then echo "on"; else echo "off"; fi
+    if grep -q '^acl ollama_' "$CONF" 2>/dev/null; then echo "on"; else echo "off"; fi
     exit 0
     ;;
 *)
@@ -42,5 +44,6 @@ if ! squid -k parse > /dev/null 2>&1; then
     echo "Squid rejected the configuration; details: squid -k parse" >&2
     exit 1
 fi
-squid -k reconfigure
+# setup-gateway.sh calls this before Squid is running; it starts Squid itself.
+if squid -k check > /dev/null 2>&1; then squid -k reconfigure; fi
 echo "Ollama access: $1"

@@ -38,7 +38,7 @@ For Claude Code in the dev VM, started in `~/dev-template` after `bootstrap.sh` 
    - `settings.json` → `~/.claude/settings.json`. If one exists, merge: keep its other keys, add these. If the user said no to bypass mode, leave out `defaultMode`.
 4. **Updates:** make sure unattended-upgrades applies security updates daily without rebooting (Ubuntu's default: check `/etc/apt/apt.conf.d/20auto-upgrades` and `50unattended-upgrades`).
 5. **Git:** `git config --global user.name/user.email` (their answers), `init.defaultBranch main`, `pull.ff only`. Create `~/projects/`.
-6. **Network check:** re-run the checks at the end of `~/dev-template/setup/devvm/bootstrap.sh` by hand (curl through the proxy to api.anthropic.com and github.com should work; example.com, and anything with `--noproxy '*'`, should fail).
+6. **Network check:** re-run every `check` at the end of `~/dev-template/setup/devvm/bootstrap.sh` by hand, with the same curl arguments; each must give its expected result.
 7. **Report**, short: what's installed (versions), check results, anything refused. Then tell the user:
    - Disconnect and reconnect (SSH or VS Code) for the `docker` group to take effect.
    - Next: setup/README.md, step 11.

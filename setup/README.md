@@ -107,15 +107,27 @@ flowchart LR
 8. **GitHub access for the VM.**
    - GitHub > Settings > Developer settings > **Fine-grained tokens** > Generate:
      - Name `agent-dev VM`, expiry 90 days (put a reminder in your calendar).
-     - Repository access: **Only select repositories**: `dev-template`, plus each project as you create it.
-     - Permissions: Contents **read and write**, Pull requests **read**, Actions **read**.
+     - Repository access: **Only select repositories**: each project as you create it. **Not `dev-template`**: its scripts run as root on the gateway and as admin on Windows, so nothing in the VM may write to it.
+     - Permissions: Contents **read and write**, Pull requests **read**, Actions **read**. Not Workflows.
+   - If `dev-template` is private, generate a second token: name `agent-dev VM template (read-only)`, same expiry, only `dev-template`, Contents **read** only.
    - In the VM (`ssh agent-dev`):
      ```bash
-     gh auth login          # GitHub.com > HTTPS > Paste an authentication token
+     gh auth login          # GitHub.com > HTTPS > Paste the agent-dev VM token
      gh auth setup-git
-     gh repo clone <your-account>/dev-template ~/dev-template
+     # dev-template, read-only. Public repo: just  git clone https://github.com/<your-account>/dev-template.git ~/dev-template
+     read -rsp 'Read-only token: ' T; echo
+     install -d -m 700 ~/.config/dev-template
+     printf 'https://x-access-token:%s@github.com\n' "$T" > ~/.config/dev-template/.git-credentials; unset T
+     chmod 600 ~/.config/dev-template/.git-credentials
+     H="store --file=$HOME/.config/dev-template/.git-credentials"
+     git -c credential.helper= -c credential.helper="$H" clone https://github.com/<your-account>/dev-template.git ~/dev-template
+     git -C ~/dev-template config credential.helper ''          # drop gh's helper for this repo...
+     git -C ~/dev-template config --add credential.helper "$H"  # ...and use the read-only token
      ```
-   This token is the most valuable thing in the VM. Keep it to the repos it needs.
+   - **Protect default branches** where your plan allows (rulesets need a public repo, or GitHub Pro/Team for private ones): repo > Settings > Rules > Rulesets > New branch ruleset, target the default branch, tick **Require a pull request before merging** and **Block force pushes**. Agents may push feature branches; this stops anything pushing straight to `main`.
+   - After pulling `dev-template` on Windows, read `git diff` of `setup/` before re-running any of its scripts there or on the gateway.
+
+   The `agent-dev VM` token is the most valuable thing in the VM. Keep it to the repos it needs.
 
 9. **Log in to Claude:** in the VM, `cd ~/dev-template && claude`. Open the login link in your Windows browser and paste the code back.
 

@@ -20,7 +20,7 @@ Everything since the checkpoint is lost: push project work first. Take new check
    powershell -ExecutionPolicy Bypass -File setup\windows\remove-vms.ps1 -Name agent-dev
    ssh-keygen -R 10.10.0.10
    ```
-3. Re-run [../README.md](../README.md) steps 3 (it only creates what's missing), 6, 7, 8 (the token still works: just repeat the `gh` commands), then 9–12.
+3. Re-run [../README.md](../README.md) steps 3 (it only creates what's missing), 6, 7, 8 (the tokens still work: just repeat the commands in the VM), then 9–12.
 
 ## Rebuild the gateway (about 20 minutes)
 

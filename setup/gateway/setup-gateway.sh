@@ -31,7 +31,7 @@ echo "Adapters: $NAT_IF = Windows/NAT side, $LAN_IF = dev VM side"
 
 echo "Installing packages..."
 apk update -q
-apk add -q squid nftables openssh
+apk add -q squid nftables openssh openssl
 
 echo "Network..."
 cat > /etc/network/interfaces <<EOF
@@ -66,6 +66,14 @@ rc-update add nftables default > /dev/null
 rc-service nftables restart
 
 echo "Squid..."
+squid -v | grep -q -- '--with-openssl' || die "this Squid has no TLS support, which the SNI check needs"
+# Squid needs a certificate to peek at TLS handshakes; it never shows it (nothing is decrypted).
+if [ ! -s /etc/squid/ssl-bump.pem ]; then
+    openssl req -x509 -newkey rsa:2048 -nodes -days 3650 -subj "/CN=agent-gateway peek only" \
+        -keyout /etc/squid/ssl-bump.pem -out /etc/squid/ssl-bump.pem 2> /dev/null
+fi
+chown root:squid /etc/squid/ssl-bump.pem
+chmod 640 /etc/squid/ssl-bump.pem
 cp squid.conf /etc/squid/squid.conf
 if [ -f /etc/squid/allowlist.txt ]; then
     # Keep the gateway's list (it may have domains added with `allow`); add any new repo entries.
@@ -76,8 +84,12 @@ else
     cp allowlist.txt /etc/squid/allowlist.txt
 fi
 install -m 755 allow remove denied ollama /usr/local/bin/
-# Ollama access stays as it was; a new gateway starts with it off.
-[ -f /etc/squid/ollama.conf ] || echo "# Ollama access is off (\`ollama on\` turns it on)." > /etc/squid/ollama.conf
+# Ollama access stays as it was (rewritten in the current form if on); a new gateway starts with it off.
+if [ "$(/usr/local/bin/ollama status)" = on ]; then
+    /usr/local/bin/ollama on > /dev/null
+else
+    /usr/local/bin/ollama off > /dev/null
+fi
 squid -k parse > /dev/null 2>&1 || die "Squid rejected its configuration; details: squid -k parse"
 rc-update add squid default > /dev/null
 rc-service squid restart

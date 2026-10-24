@@ -94,8 +94,14 @@ check() {  # check <description> <expected: reach|blocked> <curl args...>
 check "Anthropic API through the proxy" reach https://api.anthropic.com
 check "github.com through the proxy" reach https://github.com
 check "a site not on the allowlist" blocked https://example.com
+# A tunnel to an allowed host on a shared CDN that asks TLS (SNI) for another site on that CDN.
+check "an allowed tunnel asking for another site" blocked \
+    --connect-to www.cloudflare.com:443:production.cloudflare.docker.com:443 https://www.cloudflare.com
+# A GitHub address whose reverse DNS name is under .github.com: bare IPs are refused.
+check "a bare IP address" blocked https://140.82.112.3
 check "the internet without the proxy" blocked --noproxy '*' https://1.1.1.1
 check "the Windows host" blocked --noproxy '*' http://192.168.200.1
+check "the Windows host through the proxy" blocked http://192.168.200.1
 
 echo
 if [[ $failed -eq 0 ]]; then

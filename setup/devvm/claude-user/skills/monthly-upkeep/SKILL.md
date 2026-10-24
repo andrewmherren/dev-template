@@ -18,7 +18,7 @@ The gateway updates itself weekly; this covers the dev VM. Best run after the us
    - `df -h /` and `docker system df`.
    - `docker system prune -f` (stopped containers, unused networks, dangling images; volumes are kept).
    - If the disk is over 80% full, list the biggest images and volumes and ask before removing any.
-4. **Network still fenced in:** through the proxy, `curl -sS -o /dev/null https://api.anthropic.com` works and `https://example.com` fails; `curl --noproxy '*' --max-time 5 https://1.1.1.1` fails. If a blocked check succeeds, stop and tell the user straight away: the gateway isn't doing its job.
+4. **Network still fenced in:** run every `check` at the end of `~/dev-template/setup/devvm/bootstrap.sh` by hand, with the same curl arguments. If a blocked check succeeds, stop and tell the user straight away: the gateway isn't doing its job.
 5. **Secrets guard:** `node ~/.claude/hooks/test-block-secrets.js` passes.
 6. **User-level config:** compare `~/dev-template/setup/devvm/claude-user/` (`CLAUDE.md`, `hooks/`, `skills/`, `settings.json`) with `~/.claude/`. Show what differs and ask; then copy the changed files (merge `settings.json`: keep keys that aren't in the template) and re-run step 5.
 7. **Projects behind the template:** for each `~/projects/*`, compare `.claude/template-version` (missing in older projects) with `git -C ~/dev-template rev-parse HEAD`. List the ones behind; the user runs `/sync-template` in each when convenient.
