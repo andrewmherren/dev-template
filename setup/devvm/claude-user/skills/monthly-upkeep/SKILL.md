@@ -20,7 +20,7 @@ The gateway updates itself weekly; this covers the dev VM. Best run after the us
    - If the disk is over 80% full, list the biggest images and volumes and ask before removing any.
 4. **Network still fenced in:** run every `check` at the end of `~/dev-template/setup/devvm/bootstrap.sh` by hand, with the same curl arguments. If a blocked check succeeds, stop and tell the user straight away: the gateway isn't doing its job.
 5. **Hooks:** `node ~/.claude/hooks/test-block-secrets.js` and `node ~/.claude/hooks/test-guard-git-push.js` pass.
-6. **User-level config:** compare `~/dev-template/setup/devvm/claude-user/` (`CLAUDE.md`, `hooks/`, `skills/`, `settings.json`) with `~/.claude/`. Show what differs and ask; then copy the changed files (merge `settings.json`: keep keys that aren't in the template) and re-run step 5.
+6. **User-level config:** compare `~/dev-template/setup/devvm/claude-user/` (`CLAUDE.md`, `hooks/`, `skills/`, `settings.json`), and the push guard (`~/dev-template/project-template/.claude/hooks/guard-git-push.js` and `test-guard-git-push.js`), with `~/.claude/`. Show what differs and ask; then copy the changed files (merge `settings.json`: keep keys that aren't in the template) and re-run step 5.
 7. **Projects behind the template:** for each `~/projects/*`, compare `.claude/template-version` (missing in older projects) with `git -C ~/dev-template rev-parse HEAD`. List the ones behind; the user runs `/sync-template` in each when convenient.
 8. **Report**, short:
    - What was updated (old → new versions where notable), disk before and after.

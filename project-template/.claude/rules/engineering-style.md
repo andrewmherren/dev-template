@@ -29,7 +29,7 @@ How the user wants software built. Project-agnostic, reused across projects; [pr
 
 - **Push feature branches only. The user merges into the default branch.**
   - Allowed: status, diff, log, add, commit, branch, switch, stash, `git fetch origin` (it only updates `origin/*`), and pushing your own feature branch.
-  - **Never** push to the default branch (directly, by refspec, `--all` or `--mirror`), pull, or add or change remotes. In the agent dev VM a hook blocks pushes to the default branch, and projects from this template deny pull and remote changes in `.claude/settings.json`. If a push is blocked, don't work around it; ask.
+  - **Never** push to the default branch (directly, by refspec, `--all` or `--mirror`), pull, or add or change remotes. A hook in `.claude/settings.json` (`.claude/hooks/guard-git-push.js`) blocks pushes to the default branch, and the same file denies pull and remote changes. If a push is blocked, don't work around it; ask.
 - **A branch per feature.** Start each feature or fix on its own branch, made from the remote's default branch as it stands now (fetch first, then branch from `origin/main`, not a local `main` that may be behind), and named for the work: `feature/engagement-analytics`, `fix/lost-drafts`. Push it with its upstream set, so `git status` shows how it compares with the remote:
   ```bash
   git fetch origin

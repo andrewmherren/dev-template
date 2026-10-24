@@ -1,11 +1,14 @@
 #!/usr/bin/env node
-// Global PreToolUse guardrail: agents may push feature branches, never the default branch.
+// PreToolUse guardrail: agents may push feature branches, never the default branch.
 // Blocks a `git push` whose target is the remote's default branch (origin/HEAD, plus main
 // and master always), pushes of every branch (--all, --mirror), and pushes it can't check:
 // git run through bash -c, eval or xargs, or a git alias that expands to push.
 //
-// Defense in depth, not the boundary (setup/threat-model.md): a ruleset on the default
-// branch is what GitHub itself enforces.
+// Runs from the project's .claude/settings.json. The agent dev VM also runs a copy of this
+// file for every repo, with --user-level: that copy steps aside where the project has its own.
+//
+// Defense in depth, not the boundary (dev-template/setup/threat-model.md): a ruleset on the
+// default branch is what GitHub itself enforces.
 
 const { execFileSync } = require('child_process');
 const path = require('path');
@@ -19,7 +22,8 @@ process.stdin.on('end', () => {
     } catch (e) {
         deny('could not read the tool call, so the push guard could not check it.');
     }
-    if (input.tool_name !== 'Bash') process.exit(0);
+    if (input.tool_name !== 'Bash' && input.tool_name !== 'PowerShell') process.exit(0);
+    if (process.argv.includes('--user-level') && projectHasOwnGuard()) process.exit(0);
     const cmd = (input.tool_input || {}).command || '';
     // Not only commands that say "push": a git alias can push under another name.
     if (!/\bgit\b/.test(cmd)) process.exit(0);
@@ -35,6 +39,11 @@ process.stdin.on('end', () => {
     }
     process.exit(0);
 });
+
+function projectHasOwnGuard() {
+    const dir = process.env.CLAUDE_PROJECT_DIR;
+    return Boolean(dir) && require('fs').existsSync(path.join(dir, '.claude', 'hooks', 'guard-git-push.js'));
+}
 
 function deny(reason) {
     console.log(JSON.stringify({

@@ -22,10 +22,16 @@ git(repo, 'config', 'branch.feature/x.merge', 'refs/heads/feature/x');
 git(repo, 'branch', '-q', 'feature/y');
 git(repo, 'config', 'branch.feature/y.merge', 'refs/heads/trunk');
 
-function run(command, cwd = repo) {
-    return execFileSync('node', [script], {
-        input: JSON.stringify({ tool_name: 'Bash', tool_input: { command }, cwd }),
+// A project folder that has its own copy of the guard, for the --user-level cases.
+const guardedProject = path.join(tmp, 'guarded');
+fs.mkdirSync(path.join(guardedProject, '.claude', 'hooks'), { recursive: true });
+fs.copyFileSync(script, path.join(guardedProject, '.claude', 'hooks', 'guard-git-push.js'));
+
+function run(command, { args = [], projectDir = '' } = {}) {
+    return execFileSync('node', [script, ...args], {
+        input: JSON.stringify({ tool_name: 'Bash', tool_input: { command }, cwd: repo }),
         encoding: 'utf8',
+        env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
     }).trim();
 }
 
@@ -51,12 +57,16 @@ const cases = [
     ['DENY: delete the default branch', 'git push origin :trunk', true],
     // The hook reads the repo's state, so this one runs with feature/y checked out.
     ['DENY: bare push on a branch whose upstream is trunk', 'git push', true, 'feature/y'],
+    // The VM's user-level copy steps aside only where the project has its own.
+    ['DENY: user-level copy, project without its own guard', 'git push origin trunk', true, 'feature/x', { args: ['--user-level'], projectDir: repo }],
+    ['ALLOW: user-level copy, project has its own guard', 'git push origin trunk', false, 'feature/x', { args: ['--user-level'], projectDir: guardedProject }],
+    ['DENY: project copy ignores --user-level skipping', 'git push origin trunk', true, 'feature/x', { projectDir: guardedProject }],
 ];
 
 let failures = 0;
-for (const [label, command, expectDeny, branch = 'feature/x'] of cases) {
+for (const [label, command, expectDeny, branch = 'feature/x', options] of cases) {
     git(repo, 'switch', '-q', branch);
-    const out = run(command);
+    const out = run(command, options);
     const denied = out.length > 0;
     const ok = denied === expectDeny;
     if (!ok) failures++;

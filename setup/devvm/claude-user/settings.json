@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/.claude/hooks/guard-git-push.js || { echo 'The push guard failed to run, so the command is blocked. Check node and ~/.claude/hooks/.' >&2; exit 2; }",
+            "command": "node ~/.claude/hooks/guard-git-push.js --user-level ||{ echo 'The push guard failed to run, so the command is blocked. Check node and ~/.claude/hooks/.' >&2; exit 2; }",
             "statusMessage": "Checking pushes against the push guard..."
           }
         ]

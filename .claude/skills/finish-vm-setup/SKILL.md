@@ -32,7 +32,7 @@ For Claude Code in the dev VM, started in `~/dev-template` after `bootstrap.sh` 
    - The group change needs a new login: run the checks below with `sg docker -c '...'`.
    - Check: `docker run --rm hello-world`, and `docker run --rm curlimages/curl -sS -o /dev/null -w '%{http_code}' https://api.anthropic.com` prints a status (not `000`).
 3. **Claude Code's user-level config**, from `~/dev-template/setup/devvm/claude-user/`:
-   - Copy `hooks/` into `~/.claude/hooks/` and run `node ~/.claude/hooks/test-block-secrets.js` and `node ~/.claude/hooks/test-guard-git-push.js`: every case must pass.
+   - Copy `hooks/` into `~/.claude/hooks/`, plus `~/dev-template/project-template/.claude/hooks/guard-git-push.js` and its `test-guard-git-push.js` (the push guard has one copy, in the project template; the VM runs it for every repo). Run `node ~/.claude/hooks/test-block-secrets.js` and `node ~/.claude/hooks/test-guard-git-push.js`: every case must pass.
    - `CLAUDE.md` → `~/.claude/CLAUDE.md`.
    - Each folder in `skills/` → `~/.claude/skills/<name>/` (`new-project`, `import-project`, `remove-project`, `sync-template`, `monthly-upkeep`). Replace any existing copy.
    - `settings.json` → `~/.claude/settings.json`. If one exists, merge: keep its other keys, add these. If the user said no to bypass mode, leave out `defaultMode`.
