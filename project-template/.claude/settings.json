@@ -91,6 +91,17 @@
             "statusMessage": "Checking pushes against the push guard..."
           }
         ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-remote-device.js\" || { echo 'The device guard failed to run (is Node.js installed?), so the command is blocked.' >&2; exit 2; }",
+            "shell": "bash",
+            "statusMessage": "Checking device commands against the device guard..."
+          }
+        ]
       }
     ]
   }

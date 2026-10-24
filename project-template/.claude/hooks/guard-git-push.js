@@ -13,6 +13,7 @@
 
 const { execFileSync } = require('child_process');
 const path = require('path');
+const { splitCommands, commandStart, SHELLS } = require('./shell-words');
 
 let data = '';
 process.stdin.on('data', (d) => { data += d; });
@@ -62,52 +63,8 @@ function deny(reason) {
     process.exit(0);
 }
 
-// Splits a shell command into simple commands (lists of words), honoring quotes.
-// Separators: ; & | && || and newlines. Good enough for a guardrail, not a shell parser.
-function splitCommands(cmd) {
-    const commands = [];
-    let words = [];
-    let word = null;
-    const endWord = () => { if (word !== null) { words.push(word); word = null; } };
-    const endCommand = () => { endWord(); if (words.length) commands.push(words); words = []; };
-    for (let i = 0; i < cmd.length; i++) {
-        const c = cmd[i];
-        if (c === "'") {
-            const j = cmd.indexOf("'", i + 1);
-            const end = j < 0 ? cmd.length : j;
-            word = (word || '') + cmd.slice(i + 1, end);
-            i = end;
-        } else if (c === '"') {
-            let s = '';
-            for (i++; i < cmd.length && cmd[i] !== '"'; i++) {
-                if (cmd[i] === '\\' && i + 1 < cmd.length) i++;
-                s += cmd[i];
-            }
-            word = (word || '') + s;
-        } else if (c === '\\' && i + 1 < cmd.length) {
-            if (cmd[i + 1] !== '\n') word = (word || '') + cmd[i + 1];
-            i++;
-        } else if (/[;&|\n()]/.test(c)) {
-            endCommand();
-        } else if (/\s/.test(c)) {
-            endWord();
-        } else {
-            word = (word || '') + c;
-        }
-    }
-    endCommand();
-    return commands;
-}
-
-const WRAPPERS = new Set(['env', 'command', 'builtin', 'exec', 'nohup', 'time', 'sudo', 'nice']);
-const SHELLS = new Set(['bash', 'sh', 'zsh', 'dash', 'eval', 'xargs', 'watch', 'ssh']);
-
 function checkCommand(words, cwd) {
-    let i = 0;
-    // Skip VAR=value assignments and wrappers (and their options) in front of the command.
-    while (i < words.length && (/^[A-Za-z_][A-Za-z0-9_]*=/.test(words[i]) || WRAPPERS.has(words[i]) || (i > 0 && words[i].startsWith('-')))) i++;
-    const verb = path.basename(words[i] || '');
-    const rest = words.slice(i + 1);
+    const { verb, rest } = commandStart(words);
     if (SHELLS.has(verb)) {
         const text = rest.join(' ');
         if (/\bgit\b/.test(text) && /\bpush\b/.test(text)) {

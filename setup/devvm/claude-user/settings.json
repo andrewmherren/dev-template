@@ -39,6 +39,16 @@
             "statusMessage": "Checking pushes against the push guard..."
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/guard-remote-device.js --user-level || { echo 'The device guard failed to run, so the command is blocked. Check node and ~/.claude/hooks/.' >&2; exit 2; }",
+            "statusMessage": "Checking device commands against the device guard..."
+          }
+        ]
       }
     ]
   }
