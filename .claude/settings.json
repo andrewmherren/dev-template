@@ -14,12 +14,12 @@
       "Bash(git rev-parse*)",
       "Bash(git ls-files*)",
       "Bash(git fetch origin)",
-      "Bash(git push *)",
       "Bash(gh pr list*)",
       "Bash(gh pr view *)",
       "Bash(gh pr diff *)"
     ],
     "deny": [
+      "Bash(git push*)",
       "Bash(git pull*)",
       "Bash(git remote add*)",
       "Bash(git remote set-url*)",
@@ -92,7 +92,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/project-template/.claude/hooks/guard-git-push.js\" || { echo 'The push guard failed to run (is Node.js installed?), so the command is blocked.' >&2; exit 2; }",
+            "command": "node \"$CLAUDE_PROJECT_DIR/project-template/.claude/hooks/guard-git-push.js\" --no-push ||{ echo 'The push guard failed to run (is Node.js installed?), so the command is blocked.' >&2; exit 2; }",
             "shell": "bash",
             "statusMessage": "Checking pushes against the push guard..."
           }

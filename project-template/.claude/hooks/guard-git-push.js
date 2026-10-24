@@ -6,6 +6,7 @@
 //
 // Runs from the project's .claude/settings.json. The agent dev VM also runs a copy of this
 // file for every repo, with --user-level: that copy steps aside where the project has its own.
+// With --no-push it blocks every push (dev-template itself: the user pushes it).
 //
 // Defense in depth, not the boundary (dev-template/setup/threat-model.md): a ruleset on the
 // default branch is what GitHub itself enforces.
@@ -45,12 +46,17 @@ function projectHasOwnGuard() {
     return Boolean(dir) && require('fs').existsSync(path.join(dir, '.claude', 'hooks', 'guard-git-push.js'));
 }
 
+const NO_PUSH = process.argv.includes('--no-push');
+
 function deny(reason) {
+    const rule = NO_PUSH
+        ? 'Agents don\'t push this repo: commit locally and tell the user, who pushes.'
+        : 'Push feature branches only; the user merges into the default branch.';
     console.log(JSON.stringify({
         hookSpecificOutput: {
             hookEventName: 'PreToolUse',
             permissionDecision: 'deny',
-            permissionDecisionReason: `Blocked by the push guard: ${reason} Push feature branches only; the user merges into the default branch.`,
+            permissionDecisionReason: `Blocked by the push guard: ${reason} ${rule}`,
         },
     }));
     process.exit(0);
@@ -142,6 +148,7 @@ function git(cwd, args) {
 const PUSH_OPTS_WITH_VALUE = new Set(['-o', '--push-option', '--repo', '--receive-pack', '--exec']);
 
 function checkPush(args, cwd) {
+    if (NO_PUSH) return 'this is a git push.';
     const positional = [];
     for (let k = 0; k < args.length; k++) {
         const a = args[k];

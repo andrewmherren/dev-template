@@ -61,6 +61,11 @@ const cases = [
     ['DENY: user-level copy, project without its own guard', 'git push origin trunk', true, 'feature/x', { args: ['--user-level'], projectDir: repo }],
     ['ALLOW: user-level copy, project has its own guard', 'git push origin trunk', false, 'feature/x', { args: ['--user-level'], projectDir: guardedProject }],
     ['DENY: project copy ignores --user-level skipping', 'git push origin trunk', true, 'feature/x', { projectDir: guardedProject }],
+    // --no-push (dev-template itself): no pushes at all, in any form the guard can see.
+    ['DENY: --no-push, feature branch', 'git push -u origin feature/x', true, 'feature/x', { args: ['--no-push'] }],
+    ['DENY: --no-push, git -C path push', `git -C ${JSON.stringify(repo)} push`, true, 'feature/x', { args: ['--no-push'] }],
+    ['DENY: --no-push, alias that pushes', 'git ship', true, 'feature/x', { args: ['--no-push'] }],
+    ['ALLOW: --no-push, commit and status', 'git commit -m wip && git status', false, 'feature/x', { args: ['--no-push'] }],
 ];
 
 let failures = 0;
