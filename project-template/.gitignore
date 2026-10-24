@@ -1,0 +1,17 @@
+# Secrets (template lives in env.example, which is committed)
+.env
+.env.*
+
+# The user's manual tasks and ideas (.claude/rules/working-style.md)
+next-steps/
+ideas/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

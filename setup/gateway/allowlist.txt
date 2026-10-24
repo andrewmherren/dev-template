@@ -1,0 +1,48 @@
+# Domains the dev VM may reach, through the gateway's Squid proxy.
+# Installed as /etc/squid/allowlist.txt. Add more from Windows: ssh agent-gateway allow <domain>
+#
+# A leading dot also allows subdomains: .github.com covers github.com and api.github.com.
+# Don't list a domain that an entry with a leading dot already covers: Squid rejects the overlap.
+# Comments go on their own lines.
+#
+# Every entry is a way out for data. Sites that accept uploads (GitHub, package registries,
+# cloud storage) can carry data to someone else's account, so prefer exact hosts and keep
+# this list short (setup/threat-model.md).
+
+# Claude Code
+.anthropic.com
+.claude.ai
+.claude.com
+# Claude Code's installer and updater download releases from here. Anyone can host files on
+# this domain, so it's a broad way out: remove it if `claude update` works without it.
+storage.googleapis.com
+
+# Ubuntu packages (archive.ubuntu.com and country mirrors like us.archive.ubuntu.com)
+.archive.ubuntu.com
+security.ubuntu.com
+
+# Docker Engine packages and Docker Hub images
+download.docker.com
+.docker.io
+production.cloudflare.docker.com
+
+# GitHub: git, the gh CLI and its apt repo, release downloads, container images
+.github.com
+.githubusercontent.com
+ghcr.io
+
+# Package registries
+registry.npmjs.org
+pypi.org
+files.pythonhosted.org
+astral.sh
+
+# Optional: uncomment what your projects need, or add with `allow`.
+# Microsoft's container registry (Playwright and .NET images)
+# mcr.microsoft.com
+# .data.mcr.microsoft.com
+# Playwright browser downloads
+# cdn.playwright.dev
+# playwright.download.prss.microsoft.com
+# The Context7 MCP server (library docs for Claude)
+# mcp.context7.com

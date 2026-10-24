@@ -1,0 +1,31 @@
+#!/usr/sbin/nft -f
+# Gateway firewall. setup-gateway.sh fills in the interface names and installs it as /etc/nftables.nft.
+
+flush ruleset
+
+define NAT_IF = "@NAT_IF@"
+define LAN_IF = "@LAN_IF@"
+
+table inet filter {
+    chain input {
+        type filter hook input priority 0; policy drop;
+        iif lo accept
+        ct state established,related accept
+        ct state invalid drop
+        # From the dev VM: the proxy and ping only. It can't reach the gateway's SSH.
+        iifname $LAN_IF tcp dport 3128 accept
+        iifname $LAN_IF icmp type echo-request accept
+        # From Windows (its address on the NAT switch): SSH and ping.
+        iifname $NAT_IF ip saddr 192.168.200.1 tcp dport 22 accept
+        iifname $NAT_IF ip saddr 192.168.200.1 icmp type echo-request accept
+    }
+
+    chain forward {
+        # Nothing is routed between the two networks: the only way out is Squid.
+        type filter hook forward priority 0; policy drop;
+    }
+
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}

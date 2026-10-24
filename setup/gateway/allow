@@ -1,0 +1,27 @@
+#!/bin/sh
+# Adds domains to the dev VM's allowlist and reloads Squid. Installed in /usr/local/bin.
+# From Windows:
+#   ssh agent-gateway allow docs.python.org     that host only
+#   ssh agent-gateway allow .python.org         the domain and all its subdomains
+set -eu
+
+LIST=/etc/squid/allowlist.txt
+
+[ $# -gt 0 ] || { echo "usage: allow DOMAIN..." >&2; exit 2; }
+
+for arg in "$@"; do
+    domain=$(echo "$arg" | tr '[:upper:]' '[:lower:]')
+    echo "$domain" | grep -Eq '^\.?([a-z0-9-]+\.)+[a-z]{2,}$' || { echo "not a domain: $arg" >&2; exit 2; }
+    if grep -qxF "$domain" "$LIST"; then
+        echo "already allowed: $domain"
+    else
+        echo "$domain" >> "$LIST"
+        echo "allowed: $domain"
+    fi
+done
+
+if ! squid -k parse > /dev/null 2>&1; then
+    echo "Squid rejected the list (an overlapping domain?). Fix $LIST; details: squid -k parse" >&2
+    exit 1
+fi
+squid -k reconfigure
