@@ -1,0 +1,47 @@
+#!/usr/sbin/nft -f
+# Gateway firewall. setup-gateway.sh fills in the interface names and installs it as /etc/nftables.nft.
+
+flush ruleset
+
+define NAT_IF = "@NAT_IF@"
+define LAN_IF = "@LAN_IF@"
+
+table inet filter {
+    # Private host:port pairs the gateway may reach for the dev VM (Ollama, SSH to a device).
+    # Filled by the `access` command, through /etc/nftables.d/agent-access.nft. Empty by default.
+    set access_out {
+        type ipv4_addr . inet_service
+    }
+
+    chain input {
+        type filter hook input priority 0; policy drop;
+        iif lo accept
+        ct state established,related accept
+        ct state invalid drop
+        # From the dev VM: the proxy (3128 web, 3129 device tunnels) and ping only. It can't reach
+        # the gateway's SSH.
+        iifname $LAN_IF tcp dport { 3128, 3129 } accept
+        iifname $LAN_IF icmp type echo-request accept
+        # From Windows (its address on the NAT switch): SSH and ping.
+        iifname $NAT_IF ip saddr 192.168.200.1 tcp dport 22 accept
+        iifname $NAT_IF ip saddr 192.168.200.1 icmp type echo-request accept
+    }
+
+    chain forward {
+        # Nothing is routed between the two networks: the only way out is Squid.
+        type filter hook forward priority 0; policy drop;
+    }
+
+    chain output {
+        # A backstop for Squid's rules: the gateway itself never opens connections to private
+        # addresses (your home network, Windows), except the openings made with `access`.
+        type filter hook output priority 0; policy accept;
+        oif lo accept
+        ct state established,related accept
+        ip daddr . tcp dport @access_out accept
+        ip daddr { 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16 } drop
+    }
+}
+
+# Only this file, not the whole folder: nothing else should add rules here.
+include "/etc/nftables.d/agent-access.nft"

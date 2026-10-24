@@ -1,0 +1,28 @@
+# Agent workstation (dev-template/setup/README.md). Goes at the TOP of %USERPROFILE%\.ssh\config:
+# ssh uses the first value it finds, so an earlier `Host *` block would override these settings.
+
+# The gateway, for its admin tasks: `ssh agent-gateway allow <domain>`, `remove <domain>`, `denied`, `access`
+Host agent-gateway
+    HostName 192.168.200.2
+    User root
+    IdentityFile ~/.ssh/agent_vms
+    IdentitiesOnly yes
+    ForwardAgent no
+
+# The gateway's hop-only account: it can open a connection to the dev VM's SSH and nothing else
+Host agent-jump
+    HostName 192.168.200.2
+    User jump
+    IdentityFile ~/.ssh/agent_vms
+    IdentitiesOnly yes
+    ForwardAgent no
+
+# The dev VM, reached through the gateway. VS Code Remote-SSH connects to this name.
+Host agent-dev
+    HostName 10.10.0.10
+    User dev
+    ProxyJump agent-jump
+    IdentityFile ~/.ssh/agent_vms
+    IdentitiesOnly yes
+    ForwardAgent no
+    ForwardX11 no

@@ -1,0 +1,32 @@
+#!/bin/sh
+# Moves the gateway to Alpine's newest stable release. Installed in /usr/local/bin.
+# The weekly upgrade stays within the installed release, which stops getting fixes at its
+# end of life (about two years), so check this every few months.
+# From Windows:
+#   ssh agent-gateway release-upgrade          says whether a newer release exists
+#   ssh agent-gateway release-upgrade apply    switches to it, upgrades and reboots
+set -eu
+
+current=$(cut -d. -f1,2 /etc/alpine-release)
+latest=$(wget -qO- https://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64/latest-releases.yaml \
+    | sed -n 's/^ *version: *\([0-9]*\.[0-9]*\).*/\1/p' | head -n 1)
+[ -n "$latest" ] || { echo "release-upgrade: couldn't read the latest release from dl-cdn.alpinelinux.org" >&2; exit 1; }
+
+if [ "$current" = "$latest" ]; then
+    echo "Up to date: Alpine $current."
+    exit 0
+fi
+echo "Alpine $current is installed; $latest is the latest stable release."
+if [ "${1:-}" != apply ]; then
+    echo "To upgrade (the dev VM loses internet access for a minute or two): ssh agent-gateway release-upgrade apply"
+    exit 0
+fi
+
+# Steps from the Alpine wiki (Upgrading Alpine Linux to a new release branch).
+sed -i "s#/v$current/#/v$latest/#g" /etc/apk/repositories
+apk update -q
+apk add -q --upgrade apk-tools
+apk upgrade -q --available
+squid -k parse > /dev/null 2>&1 || echo "WARNING: the new Squid rejects the configuration; details: squid -k parse" >&2
+echo "Rebooting into Alpine $latest."
+reboot

@@ -1,0 +1,15 @@
+# Your SSH public key, copied in for the VM setup (setup/README.md, step 2)
+authorized_keys
+
+# Manual tasks and ideas (project-template/.claude/rules/working-style.md)
+/next-steps/
+/ideas/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

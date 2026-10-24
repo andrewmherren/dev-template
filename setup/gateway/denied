@@ -1,0 +1,9 @@
+#!/bin/sh
+# Lists the hosts Squid refused recently, most frequent first. Installed in /usr/local/bin.
+# From Windows: ssh agent-gateway denied [lines of log to scan, default 5000]
+set -eu
+
+tail -n "${1:-5000}" /var/log/squid/access.log \
+    | awk '$4 ~ /DENIED/ { print $7 }' \
+    | sed -E 's#^[a-z]+://##; s#[:/].*$##' \
+    | sort | uniq -c | sort -rn | head -40

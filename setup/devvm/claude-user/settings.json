@@ -1,0 +1,55 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(~/.ssh/**)",
+      "Read(~/.claude/.credentials.json)",
+      "Read(~/.config/gh/hosts.yml)",
+      "Read(~/.docker/config.json)",
+      "Read(~/.git-credentials)",
+      "Read(~/.netrc)",
+      "Read(~/.npmrc)",
+      "Read(~/.pypirc)",
+      "Bash(gh auth token*)",
+      "Bash(gh auth status*--show-token*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/block-secrets.js || { echo 'The secrets guard failed to run, so the tool call is blocked. Check node and ~/.claude/hooks/.' >&2; exit 2; }",
+            "statusMessage": "Checking against the secrets guard..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/guard-git-push.js --user-level ||{ echo 'The push guard failed to run, so the command is blocked. Check node and ~/.claude/hooks/.' >&2; exit 2; }",
+            "statusMessage": "Checking pushes against the push guard..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/guard-remote-device.js --user-level || { echo 'The device guard failed to run, so the command is blocked. Check node and ~/.claude/hooks/.' >&2; exit 2; }",
+            "statusMessage": "Checking device commands against the device guard..."
+          }
+        ]
+      }
+    ]
+  }
+}
