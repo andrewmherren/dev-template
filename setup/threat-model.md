@@ -19,7 +19,7 @@ flowchart LR
 
 - **Your Windows life:** files, browser sessions, saved passwords, SSH keys, cloud credentials. They aren't in the VM, and VS Code is set up not to lend them across (`windows/vscode-settings.md`).
 - **Sending data to arbitrary servers:** the dev VM has no route to the internet. Its only way out is the gateway's proxy, which allows only listed domains, and nothing in the dev VM can change that, even as root.
-- **Your home network and the Windows host:** the dev VM sits on a private switch; the proxy refuses private addresses.
+- **Your home network and the Windows host:** the dev VM sits on a private switch; the proxy refuses private addresses. One opt-in exception: with Ollama turned on ([windows/ollama.md](windows/ollama.md)), the proxy lets through Ollama's inference endpoints on Windows and nothing else there.
 - **Lasting damage:** checkpoints, and both VMs rebuild from this repo's scripts.
 
 ## Not protected
@@ -30,6 +30,7 @@ flowchart LR
   - no cloud credentials: deploy from CI (e.g. GitHub Actions with OIDC), never from the VM.
 - **Changes pushed to your repos:** the token can write to its repos. Review pull requests before merging, and keep deploys manual.
 - **The VS Code bridge:** VS Code can ask to open links from the VM in your Windows browser, and a link can carry data. Only open ones you expect, or use a plain SSH terminal.
+- **Ollama, if turned on:** anything in the VM can run models on Windows (no authentication), and a hole in Ollama's inference API would be reachable from the VM. Cloud models would carry prompts to ollama.com: use local models only, and keep Ollama updated.
 - **Hypervisor escapes:** rare, and patched through Windows Update. Keep Windows updated.
 
 ## Guardrails, not the boundary

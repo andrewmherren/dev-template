@@ -75,7 +75,9 @@ if [ -f /etc/squid/allowlist.txt ]; then
 else
     cp allowlist.txt /etc/squid/allowlist.txt
 fi
-install -m 755 allow remove denied /usr/local/bin/
+install -m 755 allow remove denied ollama /usr/local/bin/
+# Ollama access stays as it was; a new gateway starts with it off.
+[ -f /etc/squid/ollama.conf ] || echo "# Ollama access is off (\`ollama on\` turns it on)." > /etc/squid/ollama.conf
 squid -k parse > /dev/null 2>&1 || die "Squid rejected its configuration; details: squid -k parse"
 rc-update add squid default > /dev/null
 rc-service squid restart

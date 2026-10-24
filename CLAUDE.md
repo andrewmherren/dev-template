@@ -19,5 +19,6 @@ This repo is a template, not an app: setup guides and scripts for the agent work
   - `192.168.200.` (Windows ↔ gateway network), `10.10.0.` (gateway ↔ dev VM network)
   - MACs `00155D0A00..` / `00:15:5d:0a:00:..`
   - VM names `agent-gateway`, `agent-dev`; switch names `AgentNAT`, `AgentLAN`
+  - Ollama port `11434` (`setup/gateway/ollama`, `setup/windows/ollama.md`)
 - Git: local only, as in `project-template/.claude/rules/engineering-style.md` > Version control. The user pushes.
 - Names: folders and files under `project-template/` are kebab-case; only root meta files are UPPERCASE (`README.md`, `CLAUDE.md`, `TECH_SPEC.md`). Rule files say "the user", never a name or "I".

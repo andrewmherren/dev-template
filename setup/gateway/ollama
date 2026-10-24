@@ -1,0 +1,46 @@
+#!/bin/sh
+# Turns the dev VM's access to Ollama on the Windows host on or off. Installed in /usr/local/bin.
+# Off by default. Windows side, and what this allows: setup/windows/ollama.md.
+# From Windows:
+#   ssh agent-gateway ollama on        inference only: chat, generate, embeddings, model list
+#   ssh agent-gateway ollama off
+#   ssh agent-gateway ollama status
+set -eu
+
+CONF=/etc/squid/ollama.conf
+
+case "${1:-status}" in
+on)
+    cat > "$CONF" <<'EOF'
+# Written by `ollama on`. Plain HTTP to Ollama on Windows, inference endpoints only.
+# Pull, push, create, copy and delete are refused: they would reach registries from Windows,
+# outside the allowlist. Pull models on Windows instead.
+acl ollama_dst dst 192.168.200.1
+acl ollama_port port 11434
+acl ollama_get method GET
+acl ollama_post method POST
+acl ollama_read urlpath_regex ^/(api/(tags|version|ps)|v1/models(/[^/?]+)?)$
+acl ollama_run urlpath_regex ^/(api/(chat|generate|embed|embeddings|show)|v1/(chat/completions|completions|embeddings))$
+http_access allow dev_lan ollama_dst ollama_port ollama_get ollama_read
+http_access allow dev_lan ollama_dst ollama_port ollama_post ollama_run
+EOF
+    ;;
+off)
+    echo "# Ollama access is off (\`ollama on\` turns it on)." > "$CONF"
+    ;;
+status)
+    if grep -q '^acl ollama_dst' "$CONF" 2>/dev/null; then echo "on"; else echo "off"; fi
+    exit 0
+    ;;
+*)
+    echo "usage: ollama on|off|status" >&2
+    exit 2
+    ;;
+esac
+
+if ! squid -k parse > /dev/null 2>&1; then
+    echo "Squid rejected the configuration; details: squid -k parse" >&2
+    exit 1
+fi
+squid -k reconfigure
+echo "Ollama access: $1"
