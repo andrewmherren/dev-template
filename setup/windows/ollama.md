@@ -13,7 +13,7 @@ flowchart LR
 
 ## Turn it on
 
-1. **Gateway command:** from Windows, `ssh agent-gateway ollama status`. If it says `command not found`, the gateway is older than this guide: re-run [../README.md](../README.md) step 5 (safe to re-run; your allowlist is kept).
+1. **Gateway command:** from Windows, `ssh agent-gateway access`. If it says `command not found`, the gateway is older than this guide: re-run [../README.md](../README.md) step 5 (safe to re-run; your allowlist is kept).
 2. **Install Ollama** for Windows from ollama.com, or update it. If Windows Firewall asks about Ollama (it may after step 4), click **Cancel**: step 5 adds a narrower rule.
 3. **Local models only:** don't sign in to an ollama.com account in this install, and don't use models whose names end in `-cloud`. Cloud models send prompts to ollama.com, which would carry data out of the VM past the allowlist.
 4. **Listen on the VM network only** (PowerShell):
@@ -28,7 +28,7 @@ flowchart LR
        -LocalPort 11434 -LocalAddress 192.168.200.1 -RemoteAddress 192.168.200.2 -InterfaceAlias 'vEthernet (AgentNAT)'
    ```
 6. **Models:** pull the ones you want on Windows, e.g. `ollama pull llama3.2`.
-7. **Turn on the gateway rule:** `ssh agent-gateway ollama on`.
+7. **Turn on the gateway rule:** `ssh agent-gateway access add ollama`.
 8. **Tell the VM's agents** (dev VMs set up before this guide): in the VM, `git -C ~/dev-template pull`, then run `/monthly-upkeep`; it updates `~/.claude/CLAUDE.md`.
 9. **Check** in the VM (`ssh agent-dev`):
    ```bash
@@ -48,4 +48,4 @@ flowchart LR
 
 - Keep Ollama updated on Windows: it's reachable from the VM, if only through the gateway's filter.
 - If Ollama starts before the AgentNAT adapter is up (after a Windows restart) and the VM can't reach it, quit and start Ollama again.
-- **Off:** `ssh agent-gateway ollama off`. To remove it entirely, also `Remove-NetFirewallRule -DisplayName 'Ollama from agent-gateway'` (admin) and `[Environment]::SetEnvironmentVariable('OLLAMA_HOST', $null, 'User')`.
+- **Off:** `ssh agent-gateway access remove ollama`. To remove it entirely, also `Remove-NetFirewallRule -DisplayName 'Ollama from agent-gateway'` (admin) and `[Environment]::SetEnvironmentVariable('OLLAMA_HOST', $null, 'User')`.

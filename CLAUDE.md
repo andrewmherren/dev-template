@@ -20,7 +20,8 @@ This repo is a template, not an app: setup guides and scripts for the agent work
   - `192.168.200.` (Windows ↔ gateway network), `10.10.0.` (gateway ↔ dev VM network)
   - MACs `00155D0A00..` / `00:15:5d:0a:00:..`
   - VM names `agent-gateway`, `agent-dev`; switch names `AgentNAT`, `AgentLAN`
-  - Ollama port `11434` (`setup/gateway/ollama`, `setup/windows/ollama.md`)
+  - Ollama port `11434` (`setup/gateway/access`, `setup/windows/ollama.md`)
+  - Squid ports `3128` (web) and `3129` (device tunnels): `squid.conf`, `nftables.nft`, the dev VM proxy settings, the `remote-device` skill
 - This repo's `.claude/settings.json` applies the same secret rules as projects: its deny list mirrors `project-template/.claude/settings.json` (keep them in step), and its hooks run the copies in `project-template/.claude/hooks/` and `setup/devvm/claude-user/hooks/`.
 - Git: as in `project-template/.claude/rules/engineering-style.md` > Version control: feature branches may be pushed, never the default branch. In the dev VM this repo is read-only (`setup/README.md`, step 8).
 - Names: folders and files under `project-template/` are kebab-case; only root meta files are UPPERCASE (`README.md`, `CLAUDE.md`, `TECH_SPEC.md`). Rule files say "the user", never a name or "I".

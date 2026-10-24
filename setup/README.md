@@ -168,7 +168,9 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 ## Day to day
 
 - **A site is blocked:** from Windows, `ssh agent-gateway denied` lists recent refusals; `ssh agent-gateway allow <domain>` adds one (`.domain.com` for its subdomains too), and `ssh agent-gateway remove <domain>` takes one off. If every setup will need it, add it to [gateway/allowlist.txt](gateway/allowlist.txt) as well.
-- **Local AI models (optional):** run Ollama on Windows and let projects use it instead of paid APIs: [windows/ollama.md](windows/ollama.md).
+- **Openings to your side of the gateway (optional):** `ssh agent-gateway access` lists them; each is one host, off until you add it.
+  - Local AI models: run Ollama on Windows and let projects use it instead of paid APIs: [windows/ollama.md](windows/ollama.md).
+  - A device on your network (e.g. a Raspberry Pi) that a project's agent may SSH into: run `/remote-device` in that project.
 - **Monthly:** in the VM, `git -C ~/dev-template pull`, then in Claude run `/monthly-upkeep`. It also refreshes Claude's user config and skills, and lists projects behind the template. (A VM set up before the skills existed needs them once: `mkdir -p ~/.claude/skills && cp -r ~/dev-template/setup/devvm/claude-user/skills/* ~/.claude/skills/`.)
 - **Every few months:** `ssh agent-gateway release-upgrade` says whether Alpine has a newer release (the weekly updates stay within the installed one, which stops getting fixes after about two years); `release-upgrade apply` moves to it.
 - **Template changed:** in a project, run `/sync-template` to bring its rules, skills and guardrails up to date (on a branch, keeping the project's own edits).

@@ -61,6 +61,9 @@ sysctl -q -p /etc/sysctl.d/90-agent-gateway.conf
 
 echo "Firewall..."
 sed -e "s/@NAT_IF@/$NAT_IF/g" -e "s/@LAN_IF@/$LAN_IF/g" nftables.nft > /etc/nftables.nft
+# Holes made with `access` (empty until then); `access refresh` below rewrites it.
+mkdir -p /etc/nftables.d
+[ -e /etc/nftables.d/agent-access.nft ] || : > /etc/nftables.d/agent-access.nft
 nft -c -f /etc/nftables.nft
 rc-update add nftables default > /dev/null
 rc-service nftables restart
@@ -83,13 +86,16 @@ if [ -f /etc/squid/allowlist.txt ]; then
 else
     cp allowlist.txt /etc/squid/allowlist.txt
 fi
-install -m 755 allow remove denied ollama release-upgrade /usr/local/bin/
-# Ollama access stays as it was (rewritten in the current form if on); a new gateway starts with it off.
-if [ "$(/usr/local/bin/ollama status)" = on ]; then
-    /usr/local/bin/ollama on > /dev/null
-else
-    /usr/local/bin/ollama off > /dev/null
+install -m 755 allow remove denied access release-upgrade /usr/local/bin/
+# Openings made with `access` stay as they were, rewritten in the current form; a new gateway has none.
+mkdir -p /etc/squid/access.d
+echo "# Keeps Squid's include of this folder valid while nothing is open." > /etc/squid/access.d/00-none.conf
+# Gateways set up before `access` had a separate `ollama` command: carry its on/off state over.
+if grep -q '^acl ollama_' /etc/squid/ollama.conf 2> /dev/null; then
+    echo "# entry: ollama" > /etc/squid/access.d/ollama.conf
 fi
+rm -f /etc/squid/ollama.conf /usr/local/bin/ollama
+/usr/local/bin/access refresh
 squid -k parse > /dev/null 2>&1 || die "Squid rejected its configuration; details: squid -k parse"
 rc-update add squid default > /dev/null
 rc-service squid restart

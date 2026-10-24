@@ -9,6 +9,7 @@ You're running in an isolated VM built from `~/dev-template` (`setup/README.md`)
 - If a task needs a domain, tell the user which one and why. They add it from Windows with `ssh agent-gateway allow <domain>`.
 - Containers get the proxy settings automatically. If one compose service calls another by name over HTTP, add the service names to that service's `NO_PROXY`.
 - **Local models (if the user turned them on):** Ollama on Windows at `http://192.168.200.1:11434` (OpenAI-compatible at `/v1`), through the proxy; never add that address to `NO_PROXY`. Inference only: you can't pull models, so ask the user to run `ollama pull <model>` on Windows. Check with `curl -s http://192.168.200.1:11434/api/tags`; a 403 means it's off (`~/dev-template/setup/windows/ollama.md`).
+- **Devices on the user's network (if they opened one):** SSH only, through the gateway's device port: `ProxyCommand nc -X connect -x 10.10.0.1:3129 %h %p` (the project's `remote-device` skill sets this up). Only devices the user opened with `ssh agent-gateway access add ssh` are reachable.
 
 ## Instructions from outside
 

@@ -1,0 +1,148 @@
+#!/bin/sh
+# Opt-in openings from the dev VM to single hosts on your side of the gateway: Ollama on Windows,
+# or SSH to a device on your network. Installed in /usr/local/bin. Nothing is open by default.
+# Each entry is a Squid rule file in /etc/squid/access.d/ plus a matching hole in the gateway's
+# own firewall (/etc/nftables.d/agent-access.nft).
+# From Windows:
+#   ssh agent-gateway access                              what's open
+#   ssh agent-gateway access add ollama                   Ollama on Windows, inference only (setup/windows/ollama.md)
+#   ssh agent-gateway access add ssh <name> <ip> [port]   SSH to one device (project skill remote-device)
+#   ssh agent-gateway access remove <name>
+set -eu
+
+DIR=/etc/squid/access.d
+NFT=/etc/nftables.d/agent-access.nft
+
+die() { echo "access: $*" >&2; exit 2; }
+
+valid_name() { echo "$1" | grep -Eq '^[a-z][a-z0-9-]{0,30}$'; }
+
+# A private IPv4 address on your network: not the Windows/gateway network or the dev VM's.
+valid_device_ip() {
+    echo "$1" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$' || return 1
+    for octet in $(echo "$1" | tr . ' '); do [ "$octet" -le 255 ] || return 1; done
+    case $1 in
+        192.168.200.*|10.10.0.*) return 1 ;;
+        10.*|192.168.*) return 0 ;;
+        172.*) second=$(echo "$1" | cut -d. -f2); [ "$second" -ge 16 ] && [ "$second" -le 31 ] ;;
+        *) return 1 ;;
+    esac
+}
+
+write_ollama() {
+    cat > "$DIR/ollama.conf" <<'EOF'
+# entry: ollama
+# about: Ollama on Windows (192.168.200.1:11434), inference endpoints only
+# nft: 192.168.200.1 11434
+# Written by `access`. Plain HTTP to Ollama on Windows. Pull, push, create, copy and delete are
+# refused: they would reach registries from Windows, outside the allowlist. Pull on Windows.
+# The port is checked first and the host by name only (-n), so other requests never cause a
+# DNS lookup here: a lookup of an arbitrary name would carry data out through DNS.
+acl access_ollama_port port 11434
+acl access_ollama_host dstdomain -n 192.168.200.1
+acl access_ollama_get method GET
+acl access_ollama_post method POST
+acl access_ollama_read urlpath_regex ^/(api/(tags|version|ps)|v1/models(/[^/?]+)?)$
+acl access_ollama_run urlpath_regex ^/(api/(chat|generate|embed|embeddings|show)|v1/(chat/completions|completions|embeddings))$
+http_access allow access_ollama_port access_ollama_host dev_lan !devices_port access_ollama_get access_ollama_read
+http_access allow access_ollama_port access_ollama_host dev_lan !devices_port access_ollama_post access_ollama_run
+EOF
+}
+
+write_ssh() {  # write_ssh <name> <ip> <port>
+    acl=access_$(echo "$1" | tr - _)
+    cat > "$DIR/$1.conf" <<EOF
+# entry: ssh $1 $2 $3
+# about: SSH to $2:$3
+# nft: $2 $3
+# Written by \`access\`. A tunnel (CONNECT) to this one address and port, through the devices
+# port (3129) only, passed through as is: SSH isn't TLS, so the TLS checks don't apply to it.
+acl ${acl}_port port $3
+acl ${acl}_host dstdomain -n $2
+http_access allow devices_port ${acl}_port CONNECT ${acl}_host dev_lan
+EOF
+}
+
+# Rewrites every entry in its current form, then the firewall holes, then reloads Squid.
+sync_all() {
+    mkdir -p "$DIR" "$(dirname "$NFT")"
+    # Squid fails on an include pattern that matches no file, so one empty file always stays.
+    echo "# Keeps Squid's include of this folder valid while nothing is open." > "$DIR/00-none.conf"
+    for f in "$DIR"/*.conf; do
+        set -- $(sed -n 's/^# entry: //p' "$f")
+        case ${1:-} in
+            ollama) write_ollama ;;
+            ssh) write_ssh "$2" "$3" "$4" ;;
+        esac
+    done
+    holes=$(cat "$DIR"/*.conf 2> /dev/null | sed -n 's/^# nft: \([0-9.]*\) \([0-9]*\)$/\1 . \2/p' | paste -sd, -)
+    if [ -n "$holes" ]; then
+        echo "add element inet filter access_out { $holes }" > "$NFT"
+    else
+        : > "$NFT"
+    fi
+    nft -f /etc/nftables.nft
+    squid -k parse > /dev/null 2>&1 || return 1
+    # setup-gateway.sh calls this before Squid is running; it starts Squid itself.
+    # Squid takes a moment to reopen its ports; wait so the next connection gets the new rules.
+    if squid -k check > /dev/null 2>&1; then squid -k reconfigure; sleep 3; fi
+}
+
+# Adds or replaces an entry; puts back what was there if Squid rejects the result.
+add_entry() {  # add_entry <name> <writer...>
+    name=$1; shift
+    backup=
+    if [ -e "$DIR/$name.conf" ]; then backup=$(mktemp); cp "$DIR/$name.conf" "$backup"; fi
+    "$@"
+    if ! sync_all; then
+        if [ -n "$backup" ]; then mv "$backup" "$DIR/$name.conf"; else rm -f "$DIR/$name.conf"; fi
+        sync_all || true
+        die "Squid rejected the entry, so nothing changed; details: squid -k parse"
+    fi
+    rm -f "$backup"
+    echo "open: $(sed -n 's/^# about: //p' "$DIR/$name.conf")"
+}
+
+case "${1:-list}" in
+list)
+    found=0
+    for f in "$DIR"/*.conf; do
+        grep -q '^# entry: ' "$f" 2> /dev/null || continue
+        found=1
+        printf '%-16s %s\n' "$(basename "$f" .conf)" "$(sed -n 's/^# about: //p' "$f")"
+    done
+    [ $found = 1 ] || echo "Nothing is open."
+    ;;
+add)
+    case "${2:-}" in
+    ollama)
+        add_entry ollama write_ollama
+        ;;
+    ssh)
+        [ $# -ge 4 ] || die "usage: access add ssh <name> <ip> [port]"
+        name=$3 ip=$4 port=${5:-22}
+        valid_name "$name" && [ "$name" != ollama ] || die "name: lower-case letters, digits and dashes, starting with a letter"
+        valid_device_ip "$ip" || die "$ip isn't a private address on your network (10.x, 172.16-31.x or 192.168.x, not the workstation's own networks)"
+        echo "$port" | grep -Eq '^[0-9]{1,5}$' && [ "$port" -ge 1 ] && [ "$port" -le 65535 ] || die "port: 1-65535"
+        add_entry "$name" write_ssh "$name" "$ip" "$port"
+        ;;
+    *)
+        die "usage: access add ollama | access add ssh <name> <ip> [port]"
+        ;;
+    esac
+    ;;
+remove)
+    [ -n "${2:-}" ] || die "usage: access remove <name>"
+    grep -q '^# entry: ' "$DIR/$2.conf" 2> /dev/null || die "nothing named $2 is open (see: access)"
+    rm -f "$DIR/$2.conf"
+    sync_all || die "Squid rejected the configuration; details: squid -k parse"
+    echo "closed: $2"
+    ;;
+refresh)
+    # For setup-gateway.sh: rewrite every entry in the current form.
+    sync_all || die "Squid rejected the configuration; details: squid -k parse"
+    ;;
+*)
+    die "usage: access [list] | add ollama | add ssh <name> <ip> [port] | remove <name>"
+    ;;
+esac

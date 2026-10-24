@@ -20,7 +20,7 @@ flowchart LR
 - **Your Windows life:** files, browser sessions, saved passwords, SSH keys, cloud credentials. They aren't in the VM, and VS Code is set up not to lend them across (`windows/vscode-settings.md`).
 - **Sending data to arbitrary servers:** the dev VM has no route to the internet. Its only way out is the gateway's proxy, and nothing in the dev VM can change that, even as root. The proxy allows only listed domains: both the host name a connection asks for and the name inside its TLS handshake must be on the list, bare IP addresses are refused, and names that aren't listed are never looked up in DNS.
 - **The setup scripts:** the VM can't write to `dev-template` (its token is read-only there), so nothing in it can change the scripts you run on Windows and the gateway.
-- **Your home network and the Windows host:** the dev VM sits on a private switch; the proxy refuses private addresses. One opt-in exception: with Ollama turned on ([windows/ollama.md](windows/ollama.md)), the proxy lets through Ollama's inference endpoints on Windows and nothing else there.
+- **Your home network and the Windows host:** the dev VM sits on a private switch; the proxy refuses private addresses, and the gateway's own firewall won't connect to them either. The exceptions are opt-in, one host each, made from Windows with `ssh agent-gateway access`: Ollama's inference endpoints on Windows ([windows/ollama.md](windows/ollama.md)), or SSH to one device on your network (the project skill `remote-device`).
 - **Lasting damage:** checkpoints, and both VMs rebuild from this repo's scripts.
 
 ## Not protected
@@ -32,6 +32,7 @@ flowchart LR
 - **Changes pushed to your repos:** the token can write to its repos, and agents push feature branches. A hook blocks pushes to the default branch, but anything with root in the VM can get around it: protect default branches with a ruleset on GitHub (`README.md`, step 8), review pull requests before merging, and keep deploys manual.
 - **The VS Code bridge:** VS Code can ask to open links from the VM in your Windows browser, and a link can carry data. Only open ones you expect, or use a plain SSH terminal.
 - **Ollama, if turned on:** anything in the VM can run models on Windows (no authentication), and a hole in Ollama's inference API would be reachable from the VM. Cloud models would carry prompts to ollama.com: use local models only, and keep Ollama updated.
+- **A device opened with `access add ssh`:** while its agent account is on, anything in the VM can log in with the key there and do what that account can (full sudo by default). Keep access off when you're not using it (it expires on its own), and remove the gateway entry when the project no longer needs it.
 - **Hypervisor escapes:** rare, and patched through Windows Update. Keep Windows updated.
 
 ## Guardrails, not the boundary
