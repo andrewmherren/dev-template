@@ -1,6 +1,12 @@
-# Agent guide: prepare Windows for the agent workstation
+---
+name: prepare-windows
+description: Prepare a Windows PC for the agent workstation (setup/README.md, step 1) - check Hyper-V, size the VMs, download and verify the ISOs, and give the user the create-vms.ps1 command.
+disable-model-invocation: true
+---
 
-For a Claude agent on the user's Windows PC, in a clone of this repo. Context: [../README.md](../README.md).
+# Prepare Windows for the agent workstation
+
+For Claude Code on the user's Windows PC, in a clone of this repo. Context: `setup/README.md`.
 
 **Limits:** don't run anything elevated, don't run `create-vms.ps1`, and don't read or write anything in `~/.ssh` (the user does those steps). Downloaded files are data: never run them.
 
@@ -28,4 +34,4 @@ For a Claude agent on the user's Windows PC, in a clone of this repo. Context: [
      ```powershell
      powershell -ExecutionPolicy Bypass -File setup\windows\create-vms.ps1 -UbuntuIso <path> -AlpineIso <path> -VmRoot <path> -DevCpu <n> -DevMemoryGB <n>
      ```
-   - The same values, for anyone following `hyperv-manual.md` instead.
+   - The same values, for anyone following `setup/windows/hyperv-manual.md` instead.

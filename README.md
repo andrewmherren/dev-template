@@ -14,7 +14,7 @@ A starting point for projects built with Claude Code running with a high level o
 | Start a new project | [setup/README.md](setup/README.md) > 2 |
 | Bring in a repo I already have | [setup/README.md](setup/README.md) > 3 |
 | Remove a project | [setup/README.md](setup/README.md) > 4 |
-| Keep things up to date | [setup/maintenance/](setup/maintenance/) |
+| Keep things up to date | [setup/README.md](setup/README.md) > Day to day |
 
 ## Layout
 
@@ -22,12 +22,13 @@ A starting point for projects built with Claude Code running with a high level o
 |---|---|
 | `setup/windows/` | VM creation (script and manual), SSH and VS Code settings for Windows |
 | `setup/gateway/` | The Alpine gateway: Squid proxy, allowlist, firewall |
-| `setup/devvm/` | The Ubuntu dev VM: bootstrap script, agent setup guide, Claude's user-level config |
-| `setup/maintenance/` | Monthly upkeep and rebuilding |
-| `project-template/` | Copied into each new project by `AGENT_NEW_PROJECT.md` |
+| `setup/devvm/` | The Ubuntu dev VM: bootstrap script, Claude's user-level config and skills (`/new-project`, `/import-project`, `/remove-project`, `/sync-template`, `/monthly-upkeep`) |
+| `setup/maintenance/` | Going back to a checkpoint, rebuilding |
+| `project-template/` | Copied into each new project by `/new-project` |
+| `.claude/skills/` | Agent skills run in this repo: `/prepare-windows`, `/finish-vm-setup` |
 
-Files named `AGENT_*.md` are instructions for a Claude agent; everything else is for people.
+Agent procedures are Claude Code skills (`SKILL.md` files), run by typing `/<name>`; everything else is for people.
 
 ## Making it yours
 
-The rule files in `project-template/.claude/rules/` describe one way of working. If you use this template, edit them to suit you. Projects already created keep their own copies; copy changes across by hand.
+The rule files in `project-template/.claude/rules/` describe one way of working. If you use this template, edit them to suit you. Projects keep their own copies; `/sync-template` brings one up to date with the template.

@@ -1,6 +1,12 @@
-# Agent guide: finish setting up the dev VM
+---
+name: finish-vm-setup
+description: Finish setting up the agent dev VM after bootstrap.sh (setup/README.md, step 10) - Docker, Claude Code user config and skills, updates, git, network checks.
+disable-model-invocation: true
+---
 
-For a Claude agent in the dev VM, after `bootstrap.sh` has run (setup/README.md, step 10). You have passwordless sudo. Context: [../README.md](../README.md) and [../threat-model.md](../threat-model.md).
+# Finish setting up the dev VM
+
+For Claude Code in the dev VM, started in `~/dev-template` after `bootstrap.sh` has run. You have passwordless sudo. Context: `setup/README.md` and `setup/threat-model.md`.
 
 **Limits:** don't change the proxy settings (`/etc/environment`, `/etc/apt/apt.conf.d/90agent-proxy`), sshd or sudoers. If a download is refused by the proxy, name the domain to the user and stop that step; they decide whether to allow it.
 
@@ -28,6 +34,7 @@ For a Claude agent in the dev VM, after `bootstrap.sh` has run (setup/README.md,
 3. **Claude Code's user-level config**, from `~/dev-template/setup/devvm/claude-user/`:
    - Copy `hooks/` into `~/.claude/hooks/` and run `node ~/.claude/hooks/test-block-secrets.js`: every case must pass.
    - `CLAUDE.md` → `~/.claude/CLAUDE.md`.
+   - Each folder in `skills/` → `~/.claude/skills/<name>/` (`new-project`, `import-project`, `remove-project`, `sync-template`, `monthly-upkeep`). Replace any existing copy.
    - `settings.json` → `~/.claude/settings.json`. If one exists, merge: keep its other keys, add these. If the user said no to bypass mode, leave out `defaultMode`.
 4. **Updates:** make sure unattended-upgrades applies security updates daily without rebooting (Ubuntu's default: check `/etc/apt/apt.conf.d/20auto-upgrades` and `50unattended-upgrades`).
 5. **Git:** `git config --global user.name/user.email` (their answers), `init.defaultBranch main`, `pull.ff only`. Create `~/projects/`.

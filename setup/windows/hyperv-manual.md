@@ -1,8 +1,8 @@
 # Creating the VMs by hand
 
-The click-through version of `create-vms.ps1`. Use one or the other. Sizes and the VM folder come from `AGENT_PREPARE.md`, or use half your CPUs and half your RAM (at most 16 GB) for the dev VM.
+The click-through version of `create-vms.ps1`. Use one or the other. Sizes and the VM folder come from `/prepare-windows`, or use half your CPUs and half your RAM (at most 16 GB) for the dev VM.
 
-**VM folder:** Hyper-V's default is on `C:`. To use another drive, pick a folder (`AGENT_PREPARE.md` step 3 says which work) and, in each **New Virtual Machine** wizard:
+**VM folder:** Hyper-V's default is on `C:`. To use another drive, pick a folder (`/prepare-windows` step 3 says which work) and, in each **New Virtual Machine** wizard:
 - **Specify Name and Location:** tick **Store the virtual machine in a different location** and enter the folder. The VM's configuration and checkpoints go in `<folder>\<VM name>\`.
 - **Connect Virtual Hard Disk:** set **Location** to `<folder>\<VM name>\`.
 

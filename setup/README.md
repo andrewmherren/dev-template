@@ -41,7 +41,7 @@ flowchart LR
 
 **Steps:**
 
-1. **Prepare (agent).** In this repo on Windows, ask Claude: *"Follow setup/windows/AGENT_PREPARE.md"*. It checks your PC, sizes the VMs, downloads and verifies the ISOs, and gives you the command for step 3. If it says Hyper-V is off, enable it as it says and reboot.
+1. **Prepare (agent).** In this repo on Windows, start `claude` and run `/prepare-windows`. It checks your PC, sizes the VMs, downloads and verifies the ISOs, and gives you the command for step 3. If it says Hyper-V is off, enable it as it says and reboot.
 
 2. **SSH key** (PowerShell, in this repo's folder):
    ```powershell
@@ -119,7 +119,7 @@ flowchart LR
 
 9. **Log in to Claude:** in the VM, `cd ~/dev-template && claude`. Open the login link in your Windows browser and paste the code back.
 
-10. **Finish the VM (agent).** In that Claude session: *"Follow setup/devvm/AGENT_SETUP.md"*. It asks two questions, installs Docker and Claude's user settings, and checks the network.
+10. **Finish the VM (agent).** In that Claude session, run `/finish-vm-setup`. It asks two questions, installs Docker and Claude's user settings and skills, and checks the network.
 
 11. **VS Code:** follow [windows/vscode-settings.md](windows/vscode-settings.md), then connect to `agent-dev`.
 
@@ -129,7 +129,7 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 
 ## 2. Start a new project
 
-1. **Create it (agent):** in the VM, `cd ~ && claude`, then *"Follow ~/dev-template/AGENT_NEW_PROJECT.md"*. It asks for a name, description and stack, creates `~/projects/<name>` from the template, and makes the first commit.
+1. **Create it (agent):** in the VM, `cd ~ && claude`, then `/new-project`. It asks for a name, description and stack, creates `~/projects/<name>` from the template, and makes the first commit.
 2. **Connect it to GitHub:** follow the `next-steps/01-github-repo.md` it creates: an empty private repo, added to the `agent-dev VM` token, then the first push.
 3. **Open it:** VS Code > Remote-SSH > `agent-dev` > open `~/projects/<name>`.
 4. **As it grows:** put development-only keys in `.env` (agents add placeholders to `env.example`), and allow the domains its services need ([Day to day](#day-to-day)).
@@ -137,25 +137,22 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 ## 3. Bring in an existing project
 
 1. **Token:** GitHub > Settings > Developer settings > Fine-grained tokens > `agent-dev VM` > Repository access: add the repo.
-2. **Clone** (in the VM): `gh repo clone <account>/<repo> ~/projects/<repo>`.
+2. **Bring it in (agent):** in the VM, `cd ~ && claude`, then `/import-project`. It clones the repo into `~/projects/`, can add this template's agent rules on a branch, runs the project once to find refused domains, and lists what's left for you.
 3. **Secrets:** create its `.env` with **development-only** keys with low spending limits ([threat-model.md](threat-model.md)).
-4. **Domains:** run its setup and tests once, then `ssh agent-gateway denied` from Windows shows what was refused; allow what it needs.
-5. **Agent rules (optional):** if it didn't start from this template, in the project ask Claude: *"Copy `.claude/rules/`, `.claude/hooks/` and `.claude/settings.json` from ~/dev-template/project-template/ into this project, merging with what's here, and fill in project.md"*. Review the diff before committing.
+4. **Domains:** `ssh agent-gateway denied` from Windows shows what was refused; allow what it needs.
 
 ## 4. Remove a project
 
-1. **Keep what matters:** in `~/projects/<name>`, `git status` and `git log --branches --not --remotes` show nothing unpushed. Copy out anything in `next-steps/` or `ideas/` you still want (they're not in git).
-2. **Containers and data:** `docker compose down -v --rmi local`. This deletes its volumes, so its local databases too.
-3. **Files:** `rm -rf ~/projects/<name>`.
-4. **Access:** remove the repo from the `agent-dev VM` token, and revoke the development keys that were in its `.env`.
-5. **Domains (optional):** remove ones only it needed: `ssh agent-gateway remove <domain>`. If a domain is also in [gateway/allowlist.txt](gateway/allowlist.txt), delete it there too, or re-running `setup-gateway.sh` adds it back.
-6. **Disk space (optional):** `docker system prune` in the VM. The VM's disk file on Windows doesn't shrink by itself.
+1. **Remove it (agent):** in the VM, `cd ~ && claude`, then `/remove-project`. It checks for anything unpushed (including `next-steps/` and `ideas/`, which aren't in git), asks before deleting, then removes the project's containers, volumes (its local databases) and folder.
+2. **Access:** remove the repo from the `agent-dev VM` token, and revoke the development keys that were in its `.env`.
+3. **Domains (optional):** remove ones only it needed: `ssh agent-gateway remove <domain>`. If a domain is also in [gateway/allowlist.txt](gateway/allowlist.txt), delete it there too, or re-running `setup-gateway.sh` adds it back.
 
 ## Day to day
 
 - **A site is blocked:** from Windows, `ssh agent-gateway denied` lists recent refusals; `ssh agent-gateway allow <domain>` adds one (`.domain.com` for its subdomains too), and `ssh agent-gateway remove <domain>` takes one off. If every setup will need it, add it to [gateway/allowlist.txt](gateway/allowlist.txt) as well.
 - **Local AI models (optional):** run Ollama on Windows and let projects use it instead of paid APIs: [windows/ollama.md](windows/ollama.md).
-- **Monthly:** in the VM, ask Claude: *"Follow ~/dev-template/setup/maintenance/AGENT_MONTHLY.md"*.
+- **Monthly:** in the VM, `git -C ~/dev-template pull`, then in Claude run `/monthly-upkeep`. It also refreshes Claude's user config and skills, and lists projects behind the template. (A VM set up before the skills existed needs them once: `mkdir -p ~/.claude/skills && cp -r ~/dev-template/setup/devvm/claude-user/skills/* ~/.claude/skills/`.)
+- **Template changed:** in a project, run `/sync-template` to bring its rules, skills and guardrails up to date (on a branch, keeping the project's own edits).
 - **Something seems off:** go back to the checkpoint, or rebuild: [maintenance/rebuild.md](maintenance/rebuild.md).
 
 ## Troubleshooting

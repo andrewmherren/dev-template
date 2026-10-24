@@ -22,5 +22,5 @@ You're running in an isolated VM built from `~/dev-template` (`setup/README.md`)
 
 ## Working here
 
-- Projects live in `~/projects/<name>`. A new one starts from `~/dev-template/AGENT_NEW_PROJECT.md`.
+- Projects live in `~/projects/<name>`. The user runs `/new-project`, `/import-project`, `/remove-project` and `/sync-template` (in `~/.claude/skills/`) to manage them.
 - VS Code forwards ports from this VM to the user's Windows machine: give URLs as `http://localhost:<port>`.

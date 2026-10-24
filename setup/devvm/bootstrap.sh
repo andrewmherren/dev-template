@@ -4,7 +4,7 @@
 #   sudo bash ~/devvm/bootstrap.sh
 # Points everything at the gateway's proxy, locks SSH to your key, gives the dev user
 # passwordless sudo (so agents can install what they need), and installs git, the gh CLI,
-# Node (for Claude Code hooks) and Claude Code. AGENT_SETUP.md does the rest. Safe to re-run.
+# Node (for Claude Code hooks) and Claude Code. The finish-vm-setup skill does the rest. Safe to re-run.
 set -euo pipefail
 
 PROXY=http://10.10.0.1:3128
