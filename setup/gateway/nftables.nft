@@ -26,6 +26,12 @@ table inet filter {
     }
 
     chain output {
+        # A backstop for Squid's rules: the gateway itself never opens connections to private
+        # addresses (your home network, Windows), except Ollama on Windows when it's turned on.
         type filter hook output priority 0; policy accept;
+        oif lo accept
+        ct state established,related accept
+        ip daddr 192.168.200.1 tcp dport 11434 accept
+        ip daddr { 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16 } drop
     }
 }

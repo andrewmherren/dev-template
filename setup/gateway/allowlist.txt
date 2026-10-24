@@ -22,9 +22,11 @@ storage.googleapis.com
 .archive.ubuntu.com
 security.ubuntu.com
 
-# Docker Engine packages and Docker Hub images
+# Docker Engine packages and Docker Hub images. Image layers come from a CDN host: CloudFront
+# now (Docker's allowlist page), Cloudflare before and possibly still in some regions.
 download.docker.com
 .docker.io
+production.cloudfront.docker.com
 production.cloudflare.docker.com
 
 # GitHub: git, the gh CLI and its apt repo, release downloads, container images

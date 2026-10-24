@@ -11,9 +11,9 @@ function run(payloadObj) {
 }
 
 const cases = [
-    ['DENY: Read Windows-style ~/.ssh key', { tool_name: 'Read', tool_input: { file_path: 'C:\\Users\\user\\.ssh\\philco-pi-agent\\claude_agent_key' } }, true],
-    ['ALLOW: Read normal project file', { tool_name: 'Read', tool_input: { file_path: 'd:\\sandbox\\philco\\README.md' } }, false],
-    ['ALLOW: ssh -i using key for auth', { tool_name: 'Bash', tool_input: { command: 'ssh -i ~/.ssh/philco-pi-agent/claude_agent_key claude-agent@192.168.1.50' } }, false],
+    ['DENY: Read Windows-style ~/.ssh key', { tool_name: 'Read', tool_input: { file_path: 'C:\\Users\\user\\.ssh\\example-host\\agent_key' } }, true],
+    ['ALLOW: Read normal project file', { tool_name: 'Read', tool_input: { file_path: 'd:\\projects\\example\\README.md' } }, false],
+    ['ALLOW: ssh -i using key for auth', { tool_name: 'Bash', tool_input: { command: 'ssh -i ~/.ssh/example-host/agent_key agent@192.0.2.10' } }, false],
     ['DENY: cat a private key', { tool_name: 'Bash', tool_input: { command: 'cat ~/.ssh/id_rsa' } }, true],
     ['DENY: Grep inside .aws', { tool_name: 'Grep', tool_input: { pattern: 'aws_secret', path: '~/.aws/credentials' } }, true],
     ['ALLOW: .env.example template', { tool_name: 'Bash', tool_input: { command: 'cat .env.example' } }, false],
@@ -23,8 +23,8 @@ const cases = [
     ['DENY: Read gcloud creds', { tool_name: 'Read', tool_input: { file_path: '~/.config/gcloud/credentials.db' } }, true],
     ['DENY: Read TLS .key file', { tool_name: 'Read', tool_input: { file_path: '/etc/ssl/private/server.key' } }, true],
     ['DENY: cat bash_history', { tool_name: 'Bash', tool_input: { command: 'cat ~/.bash_history' } }, true],
-    ['ALLOW: ssh -i keyfile with remote command containing a read-verb-like word', { tool_name: 'Bash', tool_input: { command: 'ssh -i ~/.ssh/philco-pi-agent/claude_agent_key claude-agent@192.168.68.53 "sudo find /var/log -type f -size +5M"' } }, false],
-    ['DENY: ssh -i keyfile but ALSO cats a real secret remotely', { tool_name: 'Bash', tool_input: { command: 'ssh host "cat ~/.aws/credentials"' } }, true],
+    ['ALLOW: ssh -i keyfile with remote command containing a read-verb-like word', { tool_name: 'Bash', tool_input: { command: 'ssh -i ~/.ssh/example-host/agent_key agent@192.0.2.10 "sudo find /var/log -type f -size +5M"' } }, false],
+    ['DENY: ssh with a remote command that cats a real secret', { tool_name: 'Bash', tool_input: { command: 'ssh host "cat ~/.aws/credentials"' } }, true],
     ['DENY: awk prints .env', { tool_name: 'Bash', tool_input: { command: 'awk 1 .env' } }, true],
     ['DENY: sed prints .env', { tool_name: 'Bash', tool_input: { command: 'sed -n p .env' } }, true],
     ['DENY: grep in .env', { tool_name: 'Bash', tool_input: { command: 'grep . .env' } }, true],

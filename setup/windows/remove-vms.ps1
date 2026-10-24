@@ -29,8 +29,14 @@ foreach ($vmName in $Name) {
 
     if ($vm.State -ne 'Off') { Stop-VM -Name $vmName -TurnOff -Force }
     Get-VMSnapshot -VMName $vmName | Remove-VMSnapshot
-    # Wait for checkpoints to merge back into the disk before deleting it.
-    while ((Get-VM -Name $vmName).Status -match 'Merging') { Start-Sleep -Seconds 2 }
+    # Wait for checkpoints to merge back into the base disk before deleting it: until then the
+    # drive still points at a differencing disk (.avhdx), and the base .vhdx would be left behind.
+    $deadline = (Get-Date).AddMinutes(30)
+    while ((Get-VMHardDiskDrive -VMName $vmName | Where-Object { $_.Path -like '*.avhdx' }) -or
+           ((Get-VM -Name $vmName).Status -match 'Merging')) {
+        if ((Get-Date) -gt $deadline) { throw "$vmName's checkpoints are still merging after 30 minutes; run this again later." }
+        Start-Sleep -Seconds 2
+    }
     $disks = @(Get-VMHardDiskDrive -VMName $vmName | ForEach-Object { $_.Path })
     Remove-VM -Name $vmName -Force
     $disks | ForEach-Object { Remove-Item -Force $_ }

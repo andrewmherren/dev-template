@@ -136,6 +136,8 @@ KbdInteractiveAuthentication no
 PermitRootLogin prohibit-password
 AllowAgentForwarding no
 AllowTcpForwarding no
+AllowStreamLocalForwarding no
+PermitTunnel no
 X11Forwarding no
 EOF
 # Include must come first (sshd uses the first value it reads). The Match block must come

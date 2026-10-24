@@ -28,6 +28,10 @@ For Claude Code on the user's Windows PC, in a clone of this repo. Context: `set
    - **Ubuntu Server**, the latest LTS, amd64 live-server ISO, from `https://releases.ubuntu.com/` (find the newest LTS folder). Check it against `SHA256SUMS` in the same folder.
    - **Alpine Linux**, the latest stable **virt** x86_64 ISO, from `https://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64/` (`latest-releases.yaml` names the file and its sha256).
    - `Get-FileHash -Algorithm SHA256`. On a mismatch, delete the file and stop.
+   - **Check the signatures too** (a checksum from the same server only proves the download wasn't corrupted). Use `gpg` from Git for Windows (`C:\Program Files\Git\usr\bin\gpg.exe`) with a throwaway keyring: `GNUPGHOME` set to a new folder inside the ISO folder, deleted afterwards. This gpg needs the folder as a Git Bash path (`/d/Hyper-V/iso/gnupg`, not `D:\...`): run these steps through Git Bash. "[unknown]" trust in the output is expected; the fingerprint is what's checked.
+     - Ubuntu: download `SHA256SUMS.gpg` next to `SHA256SUMS`, and the key from `https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x843938DF228D22F7B3742BC0D94AA3F0EFE21092` (this gpg can't use `--recv-keys`); `gpg --import` it; `gpg --verify SHA256SUMS.gpg SHA256SUMS`.
+     - Alpine: download the ISO's `.asc` and `https://alpinelinux.org/keys/ncopa.asc`; `gpg --import ncopa.asc`; `gpg --verify <iso>.asc <iso>`.
+     - Pass only on "Good signature" from a key whose full fingerprint is the one above (Alpine: `0482D84022F52DF1C4E7CD43293ACD0907D9495A`). On anything else, delete the files and stop. If `gpg` isn't available, say so and that only the checksum was checked.
 6. **Report**, short:
    - What you found, and the sizes chosen.
    - The command for the user to run in an **admin PowerShell**, from the repo folder, with real values:

@@ -25,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/.claude/hooks/block-secrets.js",
+            "command": "node ~/.claude/hooks/block-secrets.js || { echo 'The secrets guard failed to run, so the tool call is blocked. Check node and ~/.claude/hooks/.' >&2; exit 2; }",
             "statusMessage": "Checking against the secrets guard..."
           }
         ]
@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/.claude/hooks/guard-git-push.js",
+            "command": "node ~/.claude/hooks/guard-git-push.js || { echo 'The push guard failed to run, so the command is blocked. Check node and ~/.claude/hooks/.' >&2; exit 2; }",
             "statusMessage": "Checking pushes against the push guard..."
           }
         ]

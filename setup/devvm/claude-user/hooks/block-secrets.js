@@ -26,7 +26,9 @@ process.stdin.on('end', () => {
     try {
         input = JSON.parse(data);
     } catch (e) {
-        process.exit(0);
+        // Fail closed: a tool call the guard can't read is one it can't clear.
+        console.error('Blocked by global secrets-guard hook: could not read the tool call to check it.');
+        process.exit(2);
     }
 
     const tool = input.tool_name;
