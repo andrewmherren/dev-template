@@ -6,7 +6,9 @@
 # From Windows:
 #   ssh agent-gateway access                              what's open
 #   ssh agent-gateway access add ollama                   Ollama on Windows, inference only (setup/windows/ollama.md)
-#   ssh agent-gateway access add ssh <name> <ip> [port]   SSH to one device (project skill remote-device)
+#   ssh agent-gateway access add ssh <name> <ip> [port] --accept-risk
+#                                                         SSH to one device (project skill remote-device);
+#                                                         without --accept-risk it explains the risk
 #   ssh agent-gateway access remove <name>
 set -eu
 
@@ -103,6 +105,13 @@ add_entry() {  # add_entry <name> <writer...>
     echo "open: $(sed -n 's/^# about: //p' "$DIR/$name.conf")"
 }
 
+# --accept-risk can go anywhere; take it out of the arguments.
+ACCEPT_RISK=no
+for a in "$@"; do
+    shift
+    if [ "$a" = --accept-risk ]; then ACCEPT_RISK=yes; else set -- "$@" "$a"; fi
+done
+
 case "${1:-list}" in
 list)
     found=0
@@ -119,8 +128,18 @@ add)
         add_entry ollama write_ollama
         ;;
     ssh)
-        [ $# -ge 4 ] || die "usage: access add ssh <name> <ip> [port]"
+        [ $# -ge 4 ] || die "usage: access add ssh <name> <ip> [port] --accept-risk"
         name=$3 ip=$4 port=${5:-22}
+        if [ $ACCEPT_RISK != yes ]; then
+            cat >&2 <<EOF
+Opening SSH from the dev VM to $ip makes that device a way around this gateway: while the
+device lets the agent in, anything in the VM can run commands there, and the device can send
+data anywhere it can reach, past the allowlist. Its agent account should have no sudo and no
+outbound network (the remote-device skill's defaults), and access only for short sessions.
+To go ahead:  access add ssh $name $ip${5:+ $5} --accept-risk
+EOF
+            exit 2
+        fi
         valid_name "$name" && [ "$name" != ollama ] || die "name: lower-case letters, digits and dashes, starting with a letter"
         valid_device_ip "$ip" || die "$ip isn't a private address on your network (10.x, 172.16-31.x or 192.168.x, not the workstation's own networks)"
         echo "$port" | grep -Eq '^[0-9]{1,5}$' && [ "$port" -ge 1 ] && [ "$port" -le 65535 ] || die "port: 1-65535"

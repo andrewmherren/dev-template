@@ -32,7 +32,13 @@ flowchart LR
 - **Changes pushed to your repos:** the token can write to its repos, and agents push feature branches. A hook blocks pushes to the default branch, but anything with root in the VM can get around it: protect default branches with a ruleset on GitHub (`README.md`, step 8), review pull requests before merging, and keep deploys manual.
 - **The VS Code bridge:** VS Code can ask to open links from the VM in your Windows browser, and a link can carry data. Only open ones you expect, or use a plain SSH terminal.
 - **Ollama, if turned on:** anything in the VM can run models on Windows (no authentication), and a hole in Ollama's inference API would be reachable from the VM. Cloud models would carry prompts to ollama.com: use local models only, and keep Ollama updated.
-- **A device opened with `access add ssh`:** while its agent account is on, anything in the VM can log in with the key there and do what that account can (full sudo by default). Keep access off when you're not using it (it expires on its own), and remove the gateway entry when the project no longer needs it.
+- **A device opened with `access add ssh`:** a way around the gateway. While its agent account is on, anything in the VM can run commands there, and whatever the device can reach, the agent can reach through it: data can leave past the allowlist. What limits it:
+  - the account has no sudo and can't open network connections from the device, unless you set it up with `--sudo` or `--internet` (with `--sudo`, the network block is only a guardrail: sudo can lift it);
+  - access expires (2 hours by default), and `agent-access off` ends open sessions;
+  - the key works only for that account, without forwarding or a terminal, and optionally only from your Windows address;
+  - the device guard hook refuses tunnels and asks before network commands on the device (a guardrail: root in the VM can remove it).
+
+  Keep access off when you're not using it, and remove the gateway entry when the project no longer needs it.
 - **Hypervisor escapes:** rare, and patched through Windows Update. Keep Windows updated.
 
 ## Guardrails, not the boundary

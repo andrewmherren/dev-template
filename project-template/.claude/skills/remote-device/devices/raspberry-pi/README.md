@@ -21,7 +21,7 @@ Adapted from [philco/scripts/remote-access](https://github.com/andrewmherren/phi
 
 From **Windows PowerShell**, with the real values:
 
-1. **Gateway opening:** `ssh agent-gateway access add ssh <name> <ip>`
+1. **Gateway opening:** `ssh agent-gateway access add ssh <name> <ip>` explains the risk; once you've read it, `ssh agent-gateway access add ssh <name> <ip> --accept-risk`.
 2. **Copy the script and the agent's public key** to the Pi (through your Windows temp folder):
    ```powershell
    scp "agent-dev:projects/<project>/.claude/skills/remote-device/devices/raspberry-pi/setup-agent-account.sh" "agent-dev:.ssh/<name>-agent.pub" $env:TEMP\
