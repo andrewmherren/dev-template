@@ -14,7 +14,7 @@ Every file in `.claude/rules/` loads automatically. `project.md` wins where it's
 | [documentation.md](.claude/rules/documentation.md) | What to document where (`docs/`), links from code, the timeline |
 | [project.md](.claude/rules/project.md) | This project: stack, development rules |
 
-Skills in `.claude/skills/` load when relevant: `write-docs` (writing `docs/` pages), `debug-recorder` (building debug recording). `.claude/template-version` is the dev-template commit this project last synced with (`/sync-template`).
+Skills in `.claude/skills/` load when relevant: `write-docs` (writing `docs/` pages), `debug-recorder` (building debug recording). The user runs `/remote-device` to give the agent SSH access to a device on their network (Raspberry Pi and others: `.claude/skills/remote-device/devices/`). `.claude/template-version` is the dev-template commit this project last synced with (`/sync-template`).
 
 ## Where things are
 
