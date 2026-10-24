@@ -9,7 +9,7 @@ Every file in `.claude/rules/` loads automatically. `project.md` wins where it's
 | File | Covers |
 |---|---|
 | [working-style.md](.claude/rules/working-style.md) | How to work with the user: replies, open questions, `next-steps/`, `ideas/`, the project view |
-| [engineering-style.md](.claude/rules/engineering-style.md) | How to build: design, dependencies, debuggability, **git (local only)**, Docker |
+| [engineering-style.md](.claude/rules/engineering-style.md) | How to build: design, dependencies, debuggability, **git (feature branches only)**, Docker |
 | [security.md](.claude/rules/security.md) | **Hard rules:** secrets, untrusted content |
 | [documentation.md](.claude/rules/documentation.md) | What to document where (`docs/`), links from code, the timeline |
 | [project.md](.claude/rules/project.md) | This project: stack, development rules |

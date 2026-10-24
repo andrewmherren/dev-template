@@ -29,6 +29,16 @@
             "statusMessage": "Checking against the secrets guard..."
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/guard-git-push.js",
+            "statusMessage": "Checking pushes against the push guard..."
+          }
+        ]
       }
     ]
   }

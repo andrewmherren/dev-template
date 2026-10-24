@@ -83,7 +83,7 @@ if [ -f /etc/squid/allowlist.txt ]; then
 else
     cp allowlist.txt /etc/squid/allowlist.txt
 fi
-install -m 755 allow remove denied ollama /usr/local/bin/
+install -m 755 allow remove denied ollama release-upgrade /usr/local/bin/
 # Ollama access stays as it was (rewritten in the current form if on); a new gateway starts with it off.
 if [ "$(/usr/local/bin/ollama status)" = on ]; then
     /usr/local/bin/ollama on > /dev/null
@@ -99,7 +99,9 @@ cat > /etc/periodic/weekly/agent-upgrade <<'EOF'
 #!/bin/sh
 # Weekly (Saturday 03:00): apply Alpine updates, then reboot so a new kernel or Squid
 # takes effect. The dev VM loses internet access for about 15 seconds.
+# Updates stay within the installed release; `release-upgrade` moves to a new one.
 apk update -q && apk upgrade -q --available > /var/log/agent-upgrade.log 2>&1
+/usr/local/bin/release-upgrade >> /var/log/agent-upgrade.log 2>&1 || true
 reboot
 EOF
 cat > /etc/periodic/daily/squid-rotate <<'EOF'

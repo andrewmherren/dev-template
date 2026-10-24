@@ -25,6 +25,23 @@ const cases = [
     ['DENY: cat bash_history', { tool_name: 'Bash', tool_input: { command: 'cat ~/.bash_history' } }, true],
     ['ALLOW: ssh -i keyfile with remote command containing a read-verb-like word', { tool_name: 'Bash', tool_input: { command: 'ssh -i ~/.ssh/philco-pi-agent/claude_agent_key claude-agent@192.168.68.53 "sudo find /var/log -type f -size +5M"' } }, false],
     ['DENY: ssh -i keyfile but ALSO cats a real secret remotely', { tool_name: 'Bash', tool_input: { command: 'ssh host "cat ~/.aws/credentials"' } }, true],
+    ['DENY: awk prints .env', { tool_name: 'Bash', tool_input: { command: 'awk 1 .env' } }, true],
+    ['DENY: sed prints .env', { tool_name: 'Bash', tool_input: { command: 'sed -n p .env' } }, true],
+    ['DENY: grep in .env', { tool_name: 'Bash', tool_input: { command: 'grep . .env' } }, true],
+    ['DENY: base64 of .env', { tool_name: 'Bash', tool_input: { command: 'base64 .env' } }, true],
+    ['DENY: cat with a redirect and no space', { tool_name: 'Bash', tool_input: { command: 'cat<.env' } }, true],
+    ['DENY: declare -p after sourcing .env', { tool_name: 'Bash', tool_input: { command: 'source .env; declare -p' } }, true],
+    ['DENY: export -p', { tool_name: 'Bash', tool_input: { command: 'export -p' } }, true],
+    ['ALLOW: export one variable', { tool_name: 'Bash', tool_input: { command: 'export FOO=bar' } }, false],
+    ['DENY: git credential fill prints the GitHub token', { tool_name: 'Bash', tool_input: { command: "printf 'protocol=https\\nhost=github.com\\n' | git credential fill" } }, true],
+    ['DENY: gh auth token', { tool_name: 'Bash', tool_input: { command: 'gh auth token' } }, true],
+    ['ALLOW: gh auth status', { tool_name: 'Bash', tool_input: { command: 'gh auth status' } }, false],
+    ['DENY: Grep with a .env* glob', { tool_name: 'Grep', tool_input: { pattern: '.', path: '.', glob: '.env*', output_mode: 'content' } }, true],
+    ['DENY: Grep with a **/*.pem glob', { tool_name: 'Grep', tool_input: { pattern: 'KEY', glob: '**/*.pem' } }, true],
+    ['DENY: Grep with a .env.* glob', { tool_name: 'Grep', tool_input: { pattern: 'KEY', glob: '.env.*' } }, true],
+    ['ALLOW: Grep with a *.ts glob', { tool_name: 'Grep', tool_input: { pattern: 'KEY', path: '.', glob: '*.ts' } }, false],
+    ['ALLOW: grep a source folder', { tool_name: 'Bash', tool_input: { command: 'grep -rn TODO src/' } }, false],
+    ['ALLOW: sed on a normal file', { tool_name: 'Bash', tool_input: { command: 'sed -n 1,20p README.md' } }, false],
 ];
 
 let failures = 0;

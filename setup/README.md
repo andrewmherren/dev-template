@@ -48,7 +48,13 @@ flowchart LR
    ssh-keygen -t ed25519 -f $HOME\.ssh\agent_vms -C agent-vms
    Copy-Item $HOME\.ssh\agent_vms.pub setup\gateway\authorized_keys
    Copy-Item $HOME\.ssh\agent_vms.pub setup\devvm\authorized_keys
-   Get-Content setup\windows\ssh-config.example | Add-Content $HOME\.ssh\config
+   # At the top of your SSH config: ssh uses the first value it finds, so these must come
+   # before any `Host *` block (one with ForwardAgent yes would otherwise lend your keys to the VM).
+   $cfg = "$HOME\.ssh\config"
+   $old = if (Test-Path $cfg) { [IO.File]::ReadAllText($cfg) } else { '' }
+   if ($old -notmatch '(?m)^Host agent-gateway\b') {
+       [IO.File]::WriteAllText($cfg, [IO.File]::ReadAllText("$PWD\setup\windows\ssh-config.example") + "`n" + $old)
+   }
    ```
    A passphrase is optional: the key only opens these two VMs. The copies are git-ignored.
 
@@ -164,6 +170,7 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 - **A site is blocked:** from Windows, `ssh agent-gateway denied` lists recent refusals; `ssh agent-gateway allow <domain>` adds one (`.domain.com` for its subdomains too), and `ssh agent-gateway remove <domain>` takes one off. If every setup will need it, add it to [gateway/allowlist.txt](gateway/allowlist.txt) as well.
 - **Local AI models (optional):** run Ollama on Windows and let projects use it instead of paid APIs: [windows/ollama.md](windows/ollama.md).
 - **Monthly:** in the VM, `git -C ~/dev-template pull`, then in Claude run `/monthly-upkeep`. It also refreshes Claude's user config and skills, and lists projects behind the template. (A VM set up before the skills existed needs them once: `mkdir -p ~/.claude/skills && cp -r ~/dev-template/setup/devvm/claude-user/skills/* ~/.claude/skills/`.)
+- **Every few months:** `ssh agent-gateway release-upgrade` says whether Alpine has a newer release (the weekly updates stay within the installed one, which stops getting fixes after about two years); `release-upgrade apply` moves to it.
 - **Template changed:** in a project, run `/sync-template` to bring its rules, skills and guardrails up to date (on a branch, keeping the project's own edits).
 - **Something seems off:** go back to the checkpoint, or rebuild: [maintenance/rebuild.md](maintenance/rebuild.md).
 

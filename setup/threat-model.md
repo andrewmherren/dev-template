@@ -18,17 +18,18 @@ flowchart LR
 ## Protected
 
 - **Your Windows life:** files, browser sessions, saved passwords, SSH keys, cloud credentials. They aren't in the VM, and VS Code is set up not to lend them across (`windows/vscode-settings.md`).
-- **Sending data to arbitrary servers:** the dev VM has no route to the internet. Its only way out is the gateway's proxy, which allows only listed domains, and nothing in the dev VM can change that, even as root.
+- **Sending data to arbitrary servers:** the dev VM has no route to the internet. Its only way out is the gateway's proxy, and nothing in the dev VM can change that, even as root. The proxy allows only listed domains: both the host name a connection asks for and the name inside its TLS handshake must be on the list, bare IP addresses are refused, and names that aren't listed are never looked up in DNS.
+- **The setup scripts:** the VM can't write to `dev-template` (its token is read-only there), so nothing in it can change the scripts you run on Windows and the gateway.
 - **Your home network and the Windows host:** the dev VM sits on a private switch; the proxy refuses private addresses. One opt-in exception: with Ollama turned on ([windows/ollama.md](windows/ollama.md)), the proxy lets through Ollama's inference endpoints on Windows and nothing else there.
 - **Lasting damage:** checkpoints, and both VMs rebuild from this repo's scripts.
 
 ## Not protected
 
-- **What's inside the VM:** your code, the GitHub token, the Claude login, project `.env` values. Some allowed sites accept uploads (GitHub, npm, PyPI, Google Cloud Storage), so a planted instruction that includes an attacker's own credentials could still carry data out through them. Keep in the VM only what you could afford to lose:
+- **What's inside the VM:** your code, the GitHub token, the Claude login, project `.env` values. Allowed sites that accept uploads can carry data to someone else's account, given an attacker's own credentials in a planted instruction: GitHub, ghcr.io and Docker Hub (pushing an image), npm, PyPI, Google Cloud Storage, and the Anthropic API itself (a request made with an attacker's API key lands in their account). Keep in the VM only what you could afford to lose:
   - a fine-grained GitHub token, limited to the repos it needs and set to expire;
   - development-only API keys with low spending limits;
   - no cloud credentials: deploy from CI (e.g. GitHub Actions with OIDC), never from the VM.
-- **Changes pushed to your repos:** the token can write to its repos. Review pull requests before merging, and keep deploys manual.
+- **Changes pushed to your repos:** the token can write to its repos, and agents push feature branches. A hook blocks pushes to the default branch, but anything with root in the VM can get around it: protect default branches with a ruleset on GitHub (`README.md`, step 8), review pull requests before merging, and keep deploys manual.
 - **The VS Code bridge:** VS Code can ask to open links from the VM in your Windows browser, and a link can carry data. Only open ones you expect, or use a plain SSH terminal.
 - **Ollama, if turned on:** anything in the VM can run models on Windows (no authentication), and a hole in Ollama's inference API would be reachable from the VM. Cloud models would carry prompts to ollama.com: use local models only, and keep Ollama updated.
 - **Hypervisor escapes:** rare, and patched through Windows Update. Keep Windows updated.

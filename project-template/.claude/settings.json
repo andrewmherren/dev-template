@@ -19,12 +19,12 @@
       "Bash(git rev-parse*)",
       "Bash(git ls-files*)",
       "Bash(git fetch origin)",
+      "Bash(git push *)",
       "Bash(gh pr list*)",
       "Bash(gh pr view *)",
       "Bash(gh pr diff *)"
     ],
     "deny": [
-      "Bash(git push*)",
       "Bash(git pull*)",
       "Bash(git remote add*)",
       "Bash(git remote set-url*)",

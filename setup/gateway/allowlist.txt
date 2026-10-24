@@ -2,7 +2,8 @@
 # Installed as /etc/squid/allowlist.txt. From Windows: ssh agent-gateway allow <domain>, or remove <domain>
 #
 # A leading dot also allows subdomains: .github.com covers github.com and api.github.com.
-# Don't list a domain that an entry with a leading dot already covers: Squid rejects the overlap.
+# Don't list a domain that an entry with a leading dot already covers: Squid warns and ignores it.
+# The same list is checked against each request's host name and its TLS name (SNI).
 # Comments go on their own lines.
 #
 # Every entry is a way out for data. Sites that accept uploads (GitHub, package registries,

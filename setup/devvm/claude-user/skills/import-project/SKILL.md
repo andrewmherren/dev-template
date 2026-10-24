@@ -17,7 +17,7 @@ disable-model-invocation: true
    - Follow `/sync-template`'s steps 3–5, treating every template file as new. Merge with what's there: an existing `CLAUDE.md`, `.gitignore` or `.claude/settings.json` is extended, never replaced.
    - Fill in `.claude/rules/project.md` from what the repo shows (stack, core logic path, checks); leave a value as "not set yet" if unsure, and ask.
    - Write `git -C ~/dev-template rev-parse HEAD` into `.claude/template-version`.
-   - Show the user the diff summary, then commit in small commits (rules; guardrails; docs skeleton).
+   - Show the user the diff summary, then commit in small commits (rules; guardrails; docs skeleton), and push the branch with `git push -u origin chore/add-dev-template`.
 5. **Secrets:** if the repo has `env.example` (or `.env.example`), tell the user to create `.env` from it with **development-only** keys. Never create or read `.env` yourself.
 6. **Domains:** run the project's setup and tests once, in Docker. For every download refused by the proxy (403, "CONNECT tunnel failed"), list the domain and what needed it. The user checks with `ssh agent-gateway denied` and allows what they want.
-7. **Report**, short: the folder, the branch (if rules were added), refused domains, and the user's remaining steps (`.env`, domains, reviewing and pushing the branch). Put those steps in `next-steps/01-import.md` in the project too.
+7. **Report**, short: the folder, the branch (if rules were added), refused domains, and the user's remaining steps (`.env`, domains, a ruleset on the default branch as in `setup/README.md` step 8, reviewing and merging the branch's pull request). Put those steps in `next-steps/01-import.md` in the project too.

@@ -1,4 +1,5 @@
-# Agent workstation (dev-template/setup/README.md). Append to %USERPROFILE%\.ssh\config.
+# Agent workstation (dev-template/setup/README.md). Goes at the TOP of %USERPROFILE%\.ssh\config:
+# ssh uses the first value it finds, so an earlier `Host *` block would override these settings.
 
 # The gateway, for its admin tasks: `ssh agent-gateway allow <domain>`, `remove <domain>`, `denied`
 Host agent-gateway

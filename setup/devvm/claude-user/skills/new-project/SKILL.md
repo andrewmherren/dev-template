@@ -32,6 +32,7 @@ Creates `~/projects/<name>` from `~/dev-template/project-template/`.
    - `next-steps/01-github-repo.md`:
      1. On GitHub, create an **empty private** repo named `<name>` (no README, licence or .gitignore).
      2. Add it to the `agent-dev VM` token: GitHub > Settings > Developer settings > Fine-grained tokens > the token > Repository access.
-     3. In the VM: `cd ~/projects/<name> && git remote add origin https://github.com/<account>/<name>.git && git push -u origin main`.
+     3. In the VM: `cd ~/projects/<name> && git remote add origin https://github.com/<account>/<name>.git && git push -u origin main && git remote set-head origin -a`.
+     4. If your plan allows, add a ruleset on `main` (`~/dev-template/setup/README.md`, step 8): agents push feature branches, and this stops anything pushing straight to `main`.
 6. **Git:** `git init -b main`, `git add -A`, and one commit: "Start <name> from dev-template".
 7. **Report**, short: the folder, the `next-steps/` file to do, and the suggested next piece of work (choosing the stack, with questions first).

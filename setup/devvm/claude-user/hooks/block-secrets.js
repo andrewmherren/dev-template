@@ -89,10 +89,24 @@ process.stdin.on('end', () => {
         process.exit(0);
     }
 
+    // A glob such as `.env*` or `**/*.pem`: test it with its wildcards removed, and with a
+    // suffix so `.env.*` still reads as `.env.<something>`. Brace lists are split.
+    function isSecretGlob(g) {
+        if (!g) return false;
+        return g.replace(/[{}]/g, ',').split(',').some((part) => {
+            const bare = part.replace(/[*?]/g, '');
+            return bare && (isSecretPath(bare) || isSecretPath(bare + 'x'));
+        });
+    }
+
     if (tool === 'Read' || tool === 'Grep' || tool === 'Glob') {
         const p = ti.file_path || ti.path;
         if (isSecretPath(p)) {
             deny(`Blocked by global secrets-guard hook: "${p}" looks like a credential/secret location.`);
+        }
+        // Grep's glob picks the files whose contents it prints. (Glob only lists names.)
+        if (tool === 'Grep' && isSecretGlob(ti.glob)) {
+            deny(`Blocked by global secrets-guard hook: the glob "${ti.glob}" selects credential/secret files.`);
         }
         process.exit(0);
         return;
@@ -123,19 +137,31 @@ process.stdin.on('end', () => {
         .map((s) => s.trim())
         .filter(Boolean);
 
-    const readVerbRe = /\b(cat|type|more|less|head|tail|strings|xxd|od|hexdump|bat|get-content|gc)\b/i;
+    const readVerbRe = /\b(cat|type|more|less|head|tail|strings|xxd|od|hexdump|bat|get-content|gc|awk|gawk|sed|grep|egrep|fgrep|rg|base64|base32|nl|tac|rev|cut|sort|uniq|diff|jq|yq)\b/i;
     const displayVerbRe = /^(echo|printf|print|write-output|write-host)$/i;
     const envDumpCmdRe = /^(env|printenv|set)$/i;
+    // With only flags (or none), these print every variable and its value.
+    const shellVarDumpRe = /^(declare|typeset|export|readonly)$/i;
+    // Commands whose whole job is to print a stored credential.
+    const tokenPrintRe = /\bgit\b.*\bcredential(-[a-z-]+)?\s+(fill|get)\b|\bgh\s+auth\s+(token\b|status\b.*(\s-t\b|--show-token))/i;
     const envListCmdRe = /^(get-childitem|gci|dir|ls)$/i;
     const httpClientRe = /^(curl|wget)$/i;
     const verboseFlagRe = /^(-v|--verbose|--trace|--trace-ascii)$/i;
 
     for (const seg of segments) {
+        // `<` splits too, so `cat<.env` still shows the path as its own token.
         const tokens = seg
-            .split(/\s+/)
+            .split(/[\s<]+/)
             .filter(Boolean)
             .map((t) => t.replace(/^["']|["']$/g, ''));
         const verb = (tokens[0] || '').toLowerCase();
+
+        if (tokenPrintRe.test(seg)) {
+            deny('Blocked by global secrets-guard hook: command prints a stored credential (git credential / gh auth token).');
+        }
+        if (shellVarDumpRe.test(verb) && tokens.slice(1).every((t) => t.startsWith('-'))) {
+            deny('Blocked by global secrets-guard hook: command dumps all shell variables.');
+        }
 
         // Direct read of a secret FILE (cat/type/head/... targeting a
         // credential path). Skip the argument to ssh/scp's -i (identity

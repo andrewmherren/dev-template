@@ -27,17 +27,16 @@ How the user wants software built. Project-agnostic, reused across projects; [pr
 
 ## Version control
 
-- **Local git only. The user pushes.**
-  - Allowed: status, diff, log, add, commit, branch, switch, stash, and `git fetch origin` (it only updates `origin/*`).
-  - **Never** push, pull, or add or change remotes. Projects from this template also deny these in `.claude/settings.json`.
-- **A branch per feature.** Start each feature or fix on its own branch, made from the remote's default branch as it stands now (fetch first, then branch from `origin/main`, not a local `main` that may be behind), and named for the work: `feature/engagement-analytics`, `fix/lost-drafts`. Set its upstream with `git config` (never `git push -u`), so the user's first push needs no flags and `git status` shows how it compares with the remote:
+- **Push feature branches only. The user merges into the default branch.**
+  - Allowed: status, diff, log, add, commit, branch, switch, stash, `git fetch origin` (it only updates `origin/*`), and pushing your own feature branch.
+  - **Never** push to the default branch (directly, by refspec, `--all` or `--mirror`), pull, or add or change remotes. In the agent dev VM a hook blocks pushes to the default branch, and projects from this template deny pull and remote changes in `.claude/settings.json`. If a push is blocked, don't work around it; ask.
+- **A branch per feature.** Start each feature or fix on its own branch, made from the remote's default branch as it stands now (fetch first, then branch from `origin/main`, not a local `main` that may be behind), and named for the work: `feature/engagement-analytics`, `fix/lost-drafts`. Push it with its upstream set, so `git status` shows how it compares with the remote:
   ```bash
   git fetch origin
   git switch -c feature/x origin/main
-  git config branch.feature/x.remote origin
-  git config branch.feature/x.merge refs/heads/feature/x
+  git push -u origin feature/x
   ```
-  The user pushes and opens the pull request; the branch reaches the default branch once its checks pass. Unrelated work goes on its own branch, not onto one that's already open.
+  The user opens the pull request and merges it once its checks pass. Unrelated work goes on its own branch, not onto one that's already open.
 - **Small, reviewable commits.** Organize work into small commits that each make one specific change and that a human can review and understand on their own. Don't bundle unrelated fixes or refactors together. Each commit message says what changed and why.
 - **Keep the main branch deployable after every commit.** Small commits mustn't mean half a feature goes live. When one part would break the running app without another that isn't built yet, keep it out of reach until the rest lands: behind a setting or feature flag that's off, or on a branch. Examples: a server-side gate before its screens; a required field before the form that fills it.
 - **Never make a failing test pass by working around what it found.** If a test fails because a feature is incomplete, leave it failing, or skip it with a reason that names what's missing. Don't add a shortcut that hides the gap. A test helper that skips a step through the API is fine only when another test covers that step through the UI.
