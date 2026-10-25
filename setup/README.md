@@ -144,12 +144,17 @@ flowchart LR
      - Name `agent-dev VM`, expiry 90 days (put a reminder in your calendar).
      - Repository access: **Only select repositories**: each project as you create it. **Not `dev-template`**: its scripts run as root on the gateway and as admin on Windows, so nothing in the VM may write to it.
      - Permissions: Contents **read and write**, Pull requests **read**, Actions **read**. Not Workflows.
-   - If `dev-template` is private, generate a second token: name `agent-dev VM template (read-only)`, same expiry, only `dev-template`, Contents **read** only.
-   - In the VM (`ssh agent-dev`):
+   - In the VM (`ssh agent-dev`), sign GitHub in with that token:
      ```bash
-     gh auth login          # GitHub.com > HTTPS > Paste the agent-dev VM token
+     gh auth login          # GitHub.com > HTTPS > Paste an authentication token: the agent-dev VM token
      gh auth setup-git
-     # dev-template, read-only. Public repo: just  git clone https://github.com/<your-account>/dev-template.git ~/dev-template
+     ```
+   - **Clone dev-template, read-only.** If your copy is **public** (the usual case), no token is needed:
+     ```bash
+     git clone https://github.com/<your-account>/dev-template.git ~/dev-template
+     ```
+     Only if it's **private**: generate a second token (name `agent-dev VM template (read-only)`, same expiry, only `dev-template`, Contents **read** only), then clone with it instead. The first line waits for you to paste that token (it isn't shown) and press Enter:
+     ```bash
      read -rsp 'Read-only token: ' T; echo
      install -d -m 700 ~/.config/dev-template
      printf 'https://x-access-token:%s@github.com\n' "$T" > ~/.config/dev-template/.git-credentials; unset T
