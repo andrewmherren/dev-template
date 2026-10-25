@@ -14,7 +14,7 @@ For Claude Code in the dev VM, started in `~/dev-template` after `bootstrap.sh` 
 
 1. **Ask first**, all together:
    - Git name and email for commits (ask in plain text: they type both). Default: none; they must answer. Explain: both go into every commit, and on GitHub anyone can read them. GitHub's private address hides the real email and still links the commits to their account: GitHub > Settings > Emails > tick **Keep my email addresses private**, then use the address shown there (`<id>+<username>@users.noreply.github.com`). Recommend it.
-   - Start Claude Code in bypass-permissions mode by default? Default: **yes**. The VM and gateway are the boundary, and that's what lets agents work without prompts. Deny rules and the secrets hook still apply.
+   - Which permission mode Claude Code starts in. Default: **auto**. Routine work runs without prompts, and a classifier reviews each action first, blocking or asking about risky ones (data sent somewhere unexpected, destructive commands, acting on instructions found in content). The other choice is **bypass**: no review, only the deny rules and hooks. Either way the VM and gateway are the boundary. Auto may depend on their plan: if Shift+Tab in Claude Code doesn't offer it, use bypass.
 2. **Docker Engine**, from Docker's apt repository (docs.docker.com/engine/install/ubuntu):
    - Packages: `docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin`.
    - Add the user to the `docker` group.
@@ -31,7 +31,7 @@ For Claude Code in the dev VM, started in `~/dev-template` after `bootstrap.sh` 
    - Copy `hooks/` into `~/.claude/hooks/`, plus from `~/dev-template/project-template/.claude/hooks/`: `shell-words.js`, `guard-git-push.js`, `guard-remote-device.js`, and the two guards' tests `test-guard-git-push.js` and `test-guard-remote-device.js` (one copy each, in the project template; the VM runs them for every repo; `shell-words.js` is a helper they share, tested through them). Run each `node ~/.claude/hooks/test-*.js`: every case must pass.
    - `CLAUDE.md` → `~/.claude/CLAUDE.md`.
    - Each folder in `skills/` → `~/.claude/skills/<name>/` (`new-project`, `import-project`, `remove-project`, `sync-template`, `monthly-upkeep`). Replace any existing copy.
-   - `settings.json` → `~/.claude/settings.json`. If one exists, merge: keep its other keys, add these. If the user said no to bypass mode, leave out `defaultMode`. Its `env` turns off Claude Code's telemetry, error reports and auto-updater (the gateway would refuse them; `/monthly-upkeep` updates Claude Code).
+   - `settings.json` → `~/.claude/settings.json`. If one exists, merge: keep its other keys, add these. Set `defaultMode` to their choice: `auto` or `bypassPermissions`. Its `env` turns off Claude Code's telemetry, error reports and auto-updater (the gateway would refuse them; `/monthly-upkeep` updates Claude Code).
 4. **Updates:** make sure unattended-upgrades applies security updates daily without rebooting (Ubuntu's default: check `/etc/apt/apt.conf.d/20auto-upgrades` and `50unattended-upgrades`).
 5. **Git:** `git config --global user.name/user.email` (their answers), `init.defaultBranch main`, `pull.ff only`. Create `~/projects/`.
 6. **Network check:** re-run every `check` at the end of `~/dev-template/setup/devvm/bootstrap.sh` by hand, with the same curl arguments; each must give its expected result.

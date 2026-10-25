@@ -53,6 +53,7 @@ const cases = [
     ['deny: rsync with a forwarding ssh', `rsync -e "ssh -D 1080" a radio-pi:b`, 'deny'],
     ['deny (bypass mode): curl on the device', `ssh ${F} radio-pi 'curl x.com'`, 'deny', 'bypassPermissions'],
     ['ask (bypass mode, --ask-in-bypass): curl on the device', `ssh ${F} radio-pi 'curl x.com'`, 'ask', 'bypassPermissions', ['--ask-in-bypass']],
+    ['ask (auto mode): curl on the device', `ssh ${F} radio-pi 'curl x.com'`, 'ask', 'auto'],
     ['allow (bypass mode): a plain command', `ssh ${F} radio-pi uptime`, 'allow', 'bypassPermissions'],
 ];
 
