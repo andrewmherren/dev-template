@@ -64,9 +64,11 @@ flowchart LR
 
    | Question | Answer |
    |---|---|
-   | Keyboard, hostname | yours, `agent-gateway` |
+   | Keyboard layout | yours |
+   | Hostname | `agent-gateway` |
    | Interface to initialize | the one with MAC `...:00:01` |
    | Its IP / netmask / gateway | `192.168.200.2` / `255.255.255.0` / `192.168.200.1` |
+   | IPv6 for that interface | `none` (the gateway turns IPv6 off in step 5) |
    | Next interface | `done`; manual network configuration: `no` |
    | DNS domain / nameserver | blank / `1.1.1.1` |
    | Root password | a strong one (you'll only need it until step 5, then at the console) |
