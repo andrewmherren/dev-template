@@ -101,7 +101,8 @@ check "an allowed tunnel asking for another site" blocked \
 check "a bare IP address" blocked https://140.82.112.3
 check "the internet without the proxy" blocked --noproxy '*' https://1.1.1.1
 check "the Windows host" blocked --noproxy '*' http://192.168.200.1
-check "the Windows host through the proxy" blocked http://192.168.200.1
+# -f: a refused plain-HTTP request still gets a 403 page from the proxy, which curl otherwise counts as reached.
+check "the Windows host through the proxy" blocked -f http://192.168.200.1
 
 echo
 if [[ $failed -eq 0 ]]; then
