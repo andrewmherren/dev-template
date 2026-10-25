@@ -105,9 +105,9 @@ flowchart LR
    |---|---|
    | Installer update | **Continue without updating** |
    | Type of install | Ubuntu Server |
-   | Network | edit the adapter > IPv4 **Manual**: subnet `10.10.0.0/24`, address `10.10.0.10`, gateway, name servers and search domains **blank** |
+   | Network | edit `eth0` > Edit IPv4 > **Manual**: subnet `10.10.0.0/24`, address `10.10.0.10`, gateway, name servers and search domains **blank** > Save. `eth0` then shows `static 10.10.0.10/24`; choose **Continue without network** (with no gateway the installer counts it as offline, but keeps the address) |
    | Proxy | `http://10.10.0.1:3128` |
-   | Mirror | the default; its check should pass (through the gateway) |
+   | Mirror | the default. Being "offline", the installer may skip its check or say it can't connect: carry on (`bootstrap.sh` updates packages later, through the gateway) |
    | Storage | use the entire disk; **untick** "Set up this disk as an LVM group" |
    | Profile | your name, server `agent-dev`, username **`dev`**, a password |
    | Ubuntu Pro | skip |
