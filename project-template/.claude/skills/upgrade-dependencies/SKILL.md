@@ -45,10 +45,25 @@ Updates everything as far as is reasonable: Dependabot's open PRs too, which the
    - `deps/patch-<YYYY-MM-DD>`: every patch update, and pinning anything unpinned at its current version.
    - `deps/minor-<YYYY-MM-DD>`: every minor update. Made after the patch branch, from it, so the two don't conflict.
    - `deps/major-<name>-<version>`: one per major update, each from `origin/main`.
-4. **On each branch:** apply the updates (use the package manager to update its lockfile; never edit a lockfile by hand). Read the changelogs and make the code changes they call for. Run the project's checks in Docker, and steps 5–6 of review mode. Commit with a message starting `deps(sweep):` and listing the updates. Push it with its upstream set.
+4. **On each branch:** apply the updates (use the package manager to update its lockfile; never edit a lockfile by hand). Read the changelogs and make the code changes they call for. Run the project's checks in Docker, and steps 5–6 of review mode. Commit with a message starting `deps(sweep):` and listing the updates. Push it with its upstream set. Changes to `.github/workflows/` stay out of the commit: see "Workflow files" below.
 5. **If an update breaks something** you can't fix in reasonable time: take it out of the branch and list it, with why, instead of holding the rest back. Never skip or weaken a failing test to get it through (engineering-style.md).
 6. **Majors:** add a decision to the TECH_SPEC log for each major version moved (what, why, what changed in the project), as `.claude/rules/documentation.md` asks.
 7. **Dependabot config:** if `.github/dependabot.yml` is missing, or misses a package manager the project uses, write it on the patch branch: every package manager found, plus `github-actions` and `docker`; weekly; minor and patch updates grouped into one PR per package manager; majors on their own.
-8. **Report**, short: each branch with what it updates, what was left out and why, and the Dependabot PRs it supersedes. The user opens the pull requests, each titled like its commit, starting `deps(sweep):` (a squash merge keeps only the title, and the reminder below looks for it), merges the patch branch first, then minor, then majors, and closes the superseded Dependabot PRs. Put those steps in `next-steps/`.
+8. **Report**, short: each branch with what it updates, what was left out and why, and the Dependabot PRs it supersedes. The user opens the pull requests, each titled like its commit, starting `deps(sweep):` (a squash merge keeps only the title, and the reminder below looks for it), merges the patch branch first, then minor, then majors, and closes the superseded Dependabot PRs. Put those steps in `next-steps/`. List the workflow hand-offs first: a branch that needs one isn't ready to merge until it's applied.
+
+## Workflow files
+
+The dev VM's token can't push changes under `.github/workflows/`. It has no Workflows permission, so nothing unreviewed runs on GitHub's runners, and GitHub refuses the whole push if any commit changes a workflow. So never commit workflow changes; hand them to the user. For each branch whose updates touch workflows (`uses:` pins, a runtime version a workflow sets up):
+
+1. Keep `.github/workflows/` on the branch as it is on `origin/main`: `git restore` anything you changed there.
+2. Write each updated workflow, in full, to `next-steps/workflows/<branch>/<file name>` (`next-steps/` is git-ignored; replace the `/` in the branch name with `-`).
+3. Write `next-steps/NN-workflows-<branch>.md` (next free number):
+   - **What and why:** per file, each change as a before → after line (e.g. `actions/checkout@v4.2.2` → `@v5.0.0`), and why: the changelog's reason, or what the branch's other updates need.
+   - **Review first:** once the change is on the branch, GitHub runs it. Read it as closely as code.
+   - **Apply it to branch `<branch>`**, whichever way suits:
+     - **On github.com:** switch to the branch, open each file, click the pencil, then make the changes above by hand, or replace the whole file with its copy in `next-steps/workflows/<branch>/`. Commit to `<branch>`. A new file: **Add file > Create new file**, at `.github/workflows/<file name>`.
+     - **From a clone on the Windows PC:** `git fetch origin` and `git switch <branch>`. Copy the files over (`scp "agent-dev:projects/<project>/next-steps/workflows/<branch>/*" .github/workflows/`), or edit them by hand. Then commit and `git push`: your own credentials can push workflows.
+   - **Then:** tell the agent. It checks the change is on the branch, then deletes `next-steps/workflows/<branch>/` and this file.
+4. In the report, say first which branches have a workflow hand-off.
 
 `/monthly-upkeep` in the dev VM lists projects whose last `deps(sweep):` commit on `origin/main` is more than 90 days old (or that have none and are older than 90 days).
