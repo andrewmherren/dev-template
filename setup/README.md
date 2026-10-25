@@ -60,7 +60,12 @@ flowchart LR
 
 3. **Create the VMs:** run the `create-vms.ps1` command `/prepare-windows` gave you, in an **admin** PowerShell from this repo's folder. Or click through [windows/hyperv-manual.md](windows/hyperv-manual.md).
 
-4. **Install the gateway OS** (about 10 minutes). Admin PowerShell: `Start-VM agent-gateway; vmconnect.exe localhost agent-gateway`. Log in as `root` (no password), run `ip link` and note which adapter has MAC `00:15:5d:0a:00:01`. Then run `setup-alpine` and answer:
+4. **Install the gateway OS** (about 10 minutes). In an **admin** PowerShell, start the VM and open its console window:
+   ```powershell
+   Start-VM agent-gateway
+   vmconnect.exe localhost agent-gateway
+   ```
+   In the console, log in as `root` (no password), run `ip link` and note which adapter has MAC `00:15:5d:0a:00:01`. Then run `setup-alpine` and answer:
 
    | Question | Answer |
    |---|---|
@@ -89,7 +94,12 @@ flowchart LR
    ```
    The last command should run without asking for a password (it prints nothing yet). The script turns password login off, so to run it again later (e.g. after a pull, or if this run was interrupted), use `agent-gateway` in place of `root@192.168.200.2` in the first two commands: that name logs in with your key.
 
-6. **Install Ubuntu on the dev VM** (about 15 minutes). Admin PowerShell: `Start-VM agent-dev; vmconnect.exe localhost agent-dev`. Answer:
+6. **Install Ubuntu on the dev VM** (about 15 minutes). In an **admin** PowerShell, start the VM and open its console window:
+   ```powershell
+   Start-VM agent-dev
+   vmconnect.exe localhost agent-dev
+   ```
+   In the console, answer:
 
    | Screen | Answer |
    |---|---|
