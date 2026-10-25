@@ -79,7 +79,7 @@ flowchart LR
    | SSH server / root login / root key | `openssh` / `yes` / `none` (step 5 turns off password login) |
    | Disk / how / erase | `sda` / `sys` / `y` |
 
-   Then `reboot`. Leave the console open: the gateway boots from its disk.
+   When `setup-alpine` finishes, type `reboot` and press Enter to restart the VM. Leave the console window open: the gateway now starts from its own disk, and you log in there as `root` with the password you just set.
 
 5. **Configure the gateway** (PowerShell, this repo's folder; enter the root password when asked):
    ```powershell
