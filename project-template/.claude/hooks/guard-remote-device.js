@@ -5,8 +5,9 @@
 //   hidden in bash -c and the like, and changing the device's access, firewall or SSH setup;
 // - asked: remote commands that reach the network or install things (curl, git clone, apt install,
 //   ...), and sending data to the device (piped or redirected input, scp/rsync uploads).
-// "Ask" shows the user the command. In bypassPermissions mode those are denied instead, unless
-// --ask-in-bypass is passed (once the user has checked that Claude Code still asks there).
+// "Ask" shows the user the command; it also prompts in auto mode (the dev VM's default). In
+// bypassPermissions mode those are denied instead, unless --ask-in-bypass is passed (once the user
+// has checked that Claude Code still asks there).
 //
 // Devices are the Host entries in ~/.config/agent-devices/ssh_config. Defense in depth, not the
 // boundary: dev-template/setup/threat-model.md.

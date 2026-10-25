@@ -43,7 +43,7 @@ flowchart LR
 
 ## Guardrails, not the boundary
 
-Claude's deny rules, the secrets hooks and the instruction files stop mistakes and catch most injected instructions, but an agent with root in the VM could remove them. The boundary is the VM plus the gateway.
+Claude's deny rules, the hooks, the instruction files and, in auto mode (the VM's default), Claude Code's review of each action stop mistakes and catch most injected instructions, but an agent with root in the VM could remove them. The boundary is the VM plus the gateway.
 
 ## Why a gateway VM
 
