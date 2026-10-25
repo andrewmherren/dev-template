@@ -41,7 +41,7 @@ Settings > **Actions** > **General**:
 ## Security
 
 Settings > **Advanced Security** (or **Code security**):
-- **Dependabot alerts** and **Dependabot security updates**: on.
+- **Dependabot alerts** and **Dependabot security updates**: on. Version updates come from `.github/dependabot.yml`, which the project's `/upgrade-dependencies sweep` writes; `/upgrade-dependencies review <PR#>` checks each pull request Dependabot opens.
 - Public repos: **Secret Protection** (secret scanning) with **Push protection**, and **Private vulnerability reporting**: on.
 
 ## General
