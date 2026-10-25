@@ -32,10 +32,11 @@ For Claude Code on the user's Windows PC, in a clone of this repo. Context: `set
      - Ubuntu: download `SHA256SUMS.gpg` next to `SHA256SUMS`, and the key from `https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x843938DF228D22F7B3742BC0D94AA3F0EFE21092` (this gpg can't use `--recv-keys`); `gpg --import` it; `gpg --verify SHA256SUMS.gpg SHA256SUMS`.
      - Alpine: download the ISO's `.asc` and `https://alpinelinux.org/keys/ncopa.asc`; `gpg --import ncopa.asc`; `gpg --verify <iso>.asc <iso>`.
      - Pass only on "Good signature" from a key whose full fingerprint is the one above (Alpine: `0482D84022F52DF1C4E7CD43293ACD0907D9495A`). On anything else, delete the files and stop. If `gpg` isn't available, say so and that only the checksum was checked.
-6. **Report**, short:
-   - What you found, and the sizes chosen.
-   - The command for the user to run in an **admin PowerShell**, from the repo folder, with real values:
-     ```powershell
-     powershell -ExecutionPolicy Bypass -File setup\windows\create-vms.ps1 -UbuntuIso <path> -AlpineIso <path> -VmRoot <path> -DevCpu <n> -DevMemoryGB <n>
-     ```
-   - The same values, for anyone following `setup/windows/hyperv-manual.md` instead.
+6. **Report**, short: what you found and the sizes chosen. Then the user's next steps, numbered, in this order, with real values (the repo folder's full path where commands need it):
+   1. **SSH key** (`setup/README.md` step 2): its PowerShell block, to run in a normal PowerShell in the repo folder. Skip if `~/.ssh/agent_vms.pub` exists (`Test-Path`; don't read it): then only the two `Copy-Item` lines, if `setup\gateway\authorized_keys` or `setup\devvm\authorized_keys` is missing.
+   2. **Create the VMs** (step 3), in an **admin** PowerShell, from the repo folder:
+      ```powershell
+      powershell -ExecutionPolicy Bypass -File setup\windows\create-vms.ps1 -UbuntuIso <path> -AlpineIso <path> -VmRoot <path> -DevCpu <n> -DevMemoryGB <n>
+      ```
+      Or, by hand, `setup/windows/hyperv-manual.md` with the same values.
+   3. **Then carry on at `setup/README.md` step 4** (installing the gateway OS).

@@ -41,7 +41,7 @@ flowchart LR
 
 **Steps:**
 
-1. **Prepare (agent).** In this repo on Windows, start `claude` and run `/prepare-windows`. It checks your PC, sizes the VMs, downloads and verifies the ISOs, and gives you the command for step 3. If it says Hyper-V is off, enable it as it says and reboot.
+1. **Prepare (agent).** In this repo on Windows, start `claude` and run `/prepare-windows`. It checks your PC, sizes the VMs, and downloads and verifies the ISOs. If it says Hyper-V is off, enable it as it says, reboot and run it again. It ends with your next steps, filled in for your PC: steps 2 and 3 below (the SSH key, then creating the VMs), then on to step 4.
 
 2. **SSH key** (PowerShell, in this repo's folder):
    ```powershell
@@ -58,7 +58,7 @@ flowchart LR
    ```
    A passphrase is optional: the key only opens these two VMs. The copies are git-ignored.
 
-3. **Create the VMs:** run the command from step 1 in an **admin** PowerShell. Or click through [windows/hyperv-manual.md](windows/hyperv-manual.md).
+3. **Create the VMs:** run the `create-vms.ps1` command `/prepare-windows` gave you, in an **admin** PowerShell from this repo's folder. Or click through [windows/hyperv-manual.md](windows/hyperv-manual.md).
 
 4. **Install the gateway OS** (about 10 minutes). Admin PowerShell: `Start-VM agent-gateway; vmconnect.exe localhost agent-gateway`. Log in as `root` (no password), run `ip link` and note which adapter has MAC `00:15:5d:0a:00:01`. Then run `setup-alpine` and answer:
 
