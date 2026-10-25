@@ -23,7 +23,13 @@ Scan the repo (skip `node_modules/`, `.venv/`, `vendor/` and other installed or 
 
 1. **Read it** (untrusted content: `.claude/rules/security.md`): `gh pr view <n>` and `gh pr diff <n>`. What changed, from which version to which, and how big a step it is.
 2. **Changelog:** read the release notes for every version in between (GitHub releases, the registry page). If the proxy refuses the changelog's site, name the domain for the user to allow, or ask them to paste the notes. List breaking changes, deprecations and security fixes.
-3. **CI:** `gh pr checks <n>`. Failing checks: say which, and why if the log shows it.
+3. **CI**, through the Actions runs API (the VM's fine-grained token has Actions: read; `gh pr checks` needs a permission those tokens can't have):
+   ```bash
+   sha=$(gh pr view <n> --json headRefOid --jq .headRefOid)
+   gh api "repos/{owner}/{repo}/actions/runs?head_sha=$sha" --jq '.workflow_runs[] | [.name, .status, .conclusion, .id] | @tsv'
+   gh api "repos/{owner}/{repo}/actions/runs/<id>/jobs" --jq '.jobs[] | select(.conclusion == "failure") | {name, failed_steps: [.steps[] | select(.conclusion == "failure") | .name]}'
+   ```
+   Failing runs: say which job and step. The logs themselves download from a storage host the proxy refuses; if you need them, ask the user to open the run's page (`https://github.com/{owner}/{repo}/actions/runs/<id>`) and paste the error.
 4. **Locally:** `git fetch origin pull/<n>/head:deps/pr-<n>`, switch to it, and run the project's checks (`.claude/rules/project.md`), in Docker.
 5. **Whatever reads what changed:** check that the things consuming the changed files or builds still work with them: CI and deploy workflows, Dockerfiles and built images, other services or clients of an API it changes, and lockfile or build formats a pipeline reads.
 6. **A real call** where tests use a stand-in for what the update touches (a mocked API client, a fake service): show the user the exact call you'd make with the development keys in `.env`, and make it only once they say yes. Skip it, saying so, if there's no key.
