@@ -17,10 +17,14 @@ VS Code connects your Windows session to the dev VM. By default it passes some o
 "remote.SSH.localServerDownload": "always",
 "remote.downloadExtensionsLocally": true,
 "remote.SSH.remotePlatform": { "agent-dev": "linux" },
+// Install the Claude Code extension in the VM on first connect (and after a rebuild).
+"remote.SSH.defaultExtensions": ["anthropic.claude-code"],
+// No telemetry: the gateway refuses it anyway, and it crowds `ssh agent-gateway denied`.
+"telemetry.telemetryLevel": "off",
 ```
 
 3. Ctrl+Shift+P > **Remote-SSH: Connect to Host** > `agent-dev`. Open `/home/dev/projects/<name>`.
-4. Install the Claude Code extension when VS Code offers to install it in the VM.
+4. Claude Code: VS Code installs the extension in the VM on the first connect (the setting above). If you added the settings after connecting, install it yourself: Extensions > Claude Code > **Install in SSH: agent-dev**. Either way it's once per VM: remote extensions live in the VM (`~/.vscode-server/`), not on Windows, so it's needed again only after a rebuild.
 
 **Good to know**
 

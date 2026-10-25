@@ -14,6 +14,7 @@ How to work with the user. Project-agnostic, reused across projects.
 - **Repeat until acknowledged.** If the user's reply doesn't answer a question or acknowledge a callout, carry it into the Open questions of every following message until they do. Drop it once answered, acknowledged or explicitly deferred (then move it to a `next-steps/` file if it still matters).
 - The user asks for more detail when they need it.
 - **Questions first.** Before starting a block of work (a feature, a list of tasks, a review's fixes), ask every question it needs, all together, each with a recommended default. Then do the work. Don't build the parts that are clear and come back later with questions about the rest.
+- **Questions that need typed answers** (a name, an email, a path): ask them in plain text, not in a multiple-choice box. If a box is used anyway, don't name its free-text option ("Other" in one app is "Type something" in another): say "type your answer in the free-text option".
 - **Direct questions** (e.g. "how does X work?") skip Done/To test/Next. Answer with whatever mix of short sentences and bullets fits the question, leading with the key point. Stay concise. Open questions still go last.
 - Don't repeat instructions in chat. Put them in a `next-steps/` file and link to it.
 - Be concise in files too: bullets or numbered steps, not essays.

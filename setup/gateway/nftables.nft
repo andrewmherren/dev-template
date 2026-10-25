@@ -16,14 +16,17 @@ table inet filter {
     chain input {
         type filter hook input priority 0; policy drop;
         iif lo accept
+        # SSH from Windows comes before the state checks: the first time these rules load, the SSH
+        # session running setup-gateway.sh is already open, and connection tracking, starting halfway
+        # through it, can call its packets invalid. That froze the session.
+        iifname $NAT_IF ip saddr 192.168.200.1 tcp dport 22 accept
         ct state established,related accept
         ct state invalid drop
         # From the dev VM: the proxy (3128 web, 3129 device tunnels) and ping only. It can't reach
         # the gateway's SSH.
         iifname $LAN_IF tcp dport { 3128, 3129 } accept
         iifname $LAN_IF icmp type echo-request accept
-        # From Windows (its address on the NAT switch): SSH and ping.
-        iifname $NAT_IF ip saddr 192.168.200.1 tcp dport 22 accept
+        # From Windows (its address on the NAT switch): ping (SSH is above).
         iifname $NAT_IF ip saddr 192.168.200.1 icmp type echo-request accept
     }
 
@@ -37,7 +40,11 @@ table inet filter {
         # addresses (your home network, Windows), except the openings made with `access`.
         type filter hook output priority 0; policy accept;
         oif lo accept
+        # Replies to SSH from Windows, for the same reason as in input.
+        oifname $NAT_IF ip daddr 192.168.200.1 tcp sport 22 accept
         ct state established,related accept
+        # The jump account's hop from Windows to the dev VM's SSH (ProxyJump).
+        oifname $LAN_IF ip daddr 10.10.0.10 tcp dport 22 accept
         ip daddr . tcp dport @access_out accept
         ip daddr { 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16 } drop
     }

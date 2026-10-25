@@ -41,7 +41,7 @@ flowchart LR
 
 **Steps:**
 
-1. **Prepare (agent).** In this repo on Windows, start `claude` and run `/prepare-windows`. It checks your PC, sizes the VMs, downloads and verifies the ISOs, and gives you the command for step 3. If it says Hyper-V is off, enable it as it says and reboot.
+1. **Prepare (agent).** In this repo on Windows, start `claude` and run `/prepare-windows`. It checks your PC, sizes the VMs, and downloads and verifies the ISOs. If it says Hyper-V is off, enable it as it says, reboot and run it again. It ends with your next steps, filled in for your PC: steps 2 and 3 below (the SSH key, then creating the VMs), then on to step 4.
 
 2. **SSH key** (PowerShell, in this repo's folder):
    ```powershell
@@ -58,25 +58,33 @@ flowchart LR
    ```
    A passphrase is optional: the key only opens these two VMs. The copies are git-ignored.
 
-3. **Create the VMs:** run the command from step 1 in an **admin** PowerShell. Or click through [windows/hyperv-manual.md](windows/hyperv-manual.md).
+3. **Create the VMs:** run the `create-vms.ps1` command `/prepare-windows` gave you, in an **admin** PowerShell from this repo's folder. Or click through [windows/hyperv-manual.md](windows/hyperv-manual.md).
 
-4. **Install the gateway OS** (about 10 minutes). Admin PowerShell: `Start-VM agent-gateway; vmconnect.exe localhost agent-gateway`. Log in as `root` (no password), run `ip link` and note which adapter has MAC `00:15:5d:0a:00:01`. Then run `setup-alpine` and answer:
+4. **Install the gateway OS** (about 10 minutes). In an **admin** PowerShell, start the VM and open its console window:
+   ```powershell
+   Start-VM agent-gateway
+   vmconnect.exe localhost agent-gateway
+   ```
+   In the console, log in as `root` (no password), run `ip link` and note which adapter has MAC `00:15:5d:0a:00:01`. Then run `setup-alpine` and answer:
 
    | Question | Answer |
    |---|---|
-   | Keyboard, hostname | yours, `agent-gateway` |
+   | Keyboard layout | yours |
+   | Hostname | `agent-gateway` |
    | Interface to initialize | the one with MAC `...:00:01` |
    | Its IP / netmask / gateway | `192.168.200.2` / `255.255.255.0` / `192.168.200.1` |
-   | Next interface | `done`; manual network configuration: `no` |
+   | IPv6 for that interface | `none` (the gateway turns IPv6 off in step 5) |
+   | Next interface to initialize | `done` |
+   | Do any manual network configuration? | `no` (the DNS questions come next either way) |
    | DNS domain / nameserver | blank / `1.1.1.1` |
-   | Root password | a strong one (you'll only need it until step 5, then at the console) |
+   | Root password | a strong one, saved in your password manager: after step 5 it's only for logging in at the VM console, if SSH ever stops working |
    | Timezone, proxy, NTP | yours, `none`, `chrony` |
    | Mirror | `f` (fastest) |
    | Set up a user | `no` |
    | SSH server / root login / root key | `openssh` / `yes` / `none` (step 5 turns off password login) |
    | Disk / how / erase | `sda` / `sys` / `y` |
 
-   Then `reboot`. Leave the console open: the gateway boots from its disk.
+   When `setup-alpine` finishes, type `reboot` and press Enter to restart the VM. Leave the console window open: the gateway now starts from its own disk, and you log in there as `root` with the password you just set.
 
 5. **Configure the gateway** (PowerShell, this repo's folder; enter the root password when asked):
    ```powershell
@@ -84,43 +92,71 @@ flowchart LR
    ssh root@192.168.200.2 sh /root/gateway/setup-gateway.sh
    ssh agent-gateway denied
    ```
-   The last command should run without asking for a password (it prints nothing yet).
+   The last command should run without asking for a password (it prints nothing yet). The script turns password login off, so to run it again later (e.g. after a pull, or if this run was interrupted), use `agent-gateway` in place of `root@192.168.200.2` in the first two commands: that name logs in with your key.
 
-6. **Install Ubuntu on the dev VM** (about 15 minutes). Admin PowerShell: `Start-VM agent-dev; vmconnect.exe localhost agent-dev`. Answer:
+   Once `ssh agent-gateway denied` works, you can close the gateway's console window: the VM keeps running (closing the window doesn't stop it), and from now on you reach it by SSH.
+
+6. **Install Ubuntu on the dev VM** (about 15 minutes). In an **admin** PowerShell, start the VM and open its console window:
+   ```powershell
+   Start-VM agent-dev
+   vmconnect.exe localhost agent-dev
+   ```
+   In the console, answer:
 
    | Screen | Answer |
    |---|---|
    | Installer update | **Continue without updating** |
    | Type of install | Ubuntu Server |
-   | Network | edit the adapter > IPv4 **Manual**: subnet `10.10.0.0/24`, address `10.10.0.10`, gateway, name servers and search domains **blank** |
+   | Network | edit `eth0` > Edit IPv4 > **Manual**: subnet `10.10.0.0/24`, address `10.10.0.10`, gateway, name servers and search domains **blank** > Save. `eth0` then shows `static 10.10.0.10/24`; choose **Continue without network** (with no gateway the installer counts it as offline, but keeps the address) |
    | Proxy | `http://10.10.0.1:3128` |
-   | Mirror | the default; its check should pass (through the gateway) |
+   | Mirror | the default. Being "offline", the installer may skip its check or say it can't connect: carry on (`bootstrap.sh` updates packages later, through the gateway) |
    | Storage | use the entire disk; **untick** "Set up this disk as an LVM group" |
-   | Profile | your name, server `agent-dev`, username **`dev`**, a password |
+   | Confirm destructive action | **Continue**: it erases only the VM's own new, empty virtual disk |
+   | Profile | your name: anything, e.g. `Dev` (it's only a label on the account, readable by everything in the VM); server `agent-dev`; username **`dev`**; a strong password, saved in your password manager: after step 7 it's only for logging in at the VM console, if SSH ever stops working (sudo won't ask for it) |
    | Ubuntu Pro | skip |
    | SSH | **Install OpenSSH server**, allow password authentication (step 7 turns it off), no key import |
    | Snaps | none |
 
-   Reboot when it's done. If the installer starts again, turn the VM off and on.
+   When it's done, choose **Reboot Now**. If it says to remove the installation medium, just press Enter: the VM boots from its disk first.
 
-7. **Bootstrap the dev VM** (PowerShell, this repo's folder; enter the `dev` password when asked):
+   If the installer starts again anyway, eject the ISO and restart the VM (admin PowerShell; the console window reconnects by itself):
+   ```powershell
+   Get-VMDvdDrive -VMName agent-dev | Set-VMDvdDrive -Path $null
+   Stop-VM agent-dev -TurnOff
+   Start-VM agent-dev
+   ```
+   The installed system then starts to an `agent-dev login:` prompt.
+
+7. **Bootstrap the dev VM** (about 10 minutes; PowerShell, this repo's folder; enter the `dev` password when asked, including once for `sudo`):
    ```powershell
    scp -r setup\devvm agent-dev:
    ssh -t agent-dev sudo bash devvm/bootstrap.sh
    ```
-   Every network check should say `ok`. Then check `ssh agent-dev` connects **without** a password before closing anything; if it doesn't, the VM console still works.
+   What it does, in order (each part prints a `==` heading):
+   - **SSH:** your key only; password login off.
+   - **sudo** without a password for `dev` (agents can't type one).
+   - **Proxy:** points the system, apt and downloads at the gateway.
+   - **Packages:** updates everything Ubuntu installed (the longest part), then installs git, curl, jq, Node.js, the GitHub CLI and Claude Code.
+   - **Network checks:** each line should say `ok`.
+
+   Then check `ssh agent-dev` connects **without** a password before closing anything; if it doesn't, the VM console still works. Once it does, close the dev VM's console window (closing it doesn't stop the VM). Steps 8–10 run in that SSH session. When you're done in the VM, type `exit` to get back to Windows: the prompt starts with `PS` again, and gateway commands like `ssh agent-gateway denied` only work from there.
 
 8. **GitHub access for the VM.**
    - GitHub > Settings > Developer settings > **Fine-grained tokens** > Generate:
      - Name `agent-dev VM`, expiry 90 days (put a reminder in your calendar).
      - Repository access: **Only select repositories**: each project as you create it. **Not `dev-template`**: its scripts run as root on the gateway and as admin on Windows, so nothing in the VM may write to it.
      - Permissions: Contents **read and write**, Pull requests **read**, Actions **read**. Not Workflows.
-   - If `dev-template` is private, generate a second token: name `agent-dev VM template (read-only)`, same expiry, only `dev-template`, Contents **read** only.
-   - In the VM (`ssh agent-dev`):
+   - In the VM (`ssh agent-dev`), sign GitHub in with that token:
      ```bash
-     gh auth login          # GitHub.com > HTTPS > Paste the agent-dev VM token
+     gh auth login          # GitHub.com > HTTPS > Paste an authentication token: the agent-dev VM token
      gh auth setup-git
-     # dev-template, read-only. Public repo: just  git clone https://github.com/<your-account>/dev-template.git ~/dev-template
+     ```
+   - **Clone dev-template, read-only.** If your copy is **public** (the usual case), no token is needed:
+     ```bash
+     git clone https://github.com/<your-account>/dev-template.git ~/dev-template
+     ```
+     Only if it's **private**: generate a second token (name `agent-dev VM template (read-only)`, same expiry, only `dev-template`, Contents **read** only), then clone with it instead. The first line waits for you to paste that token (it isn't shown) and press Enter:
+     ```bash
      read -rsp 'Read-only token: ' T; echo
      install -d -m 700 ~/.config/dev-template
      printf 'https://x-access-token:%s@github.com\n' "$T" > ~/.config/dev-template/.git-credentials; unset T
@@ -167,6 +203,7 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 
 ## Day to day
 
+- **Gateway commands** (`ssh agent-gateway ...`): in a normal (not admin) PowerShell window on Windows, whose prompt starts with `PS`. Not in the VM, and not in VS Code's terminal while VS Code is connected to `agent-dev`: that terminal runs in the VM, where `agent-gateway` doesn't exist ("Could not resolve hostname"). If a window shows `dev@agent-dev`, type `exit` first.
 - **A site is blocked:** from Windows, `ssh agent-gateway denied` lists recent refusals; `ssh agent-gateway allow <domain>` adds one (`.domain.com` for its subdomains too), and `ssh agent-gateway remove <domain>` takes one off. If every setup will need it, add it to [gateway/allowlist.txt](gateway/allowlist.txt) as well.
 - **Openings to your side of the gateway (optional):** `ssh agent-gateway access` lists them; each is one host, off until you add it.
   - Local AI models: run Ollama on Windows and let projects use it instead of paid APIs: [windows/ollama.md](windows/ollama.md).
