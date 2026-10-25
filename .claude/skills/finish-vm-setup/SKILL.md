@@ -13,7 +13,7 @@ For Claude Code in the dev VM, started in `~/dev-template` after `bootstrap.sh` 
 ## Steps
 
 1. **Ask first**, all together:
-   - Git name and email for commits. Default: none; they must answer. Explain: both go into every commit, and on GitHub anyone can read them. GitHub's private address hides the real email and still links the commits to their account: GitHub > Settings > Emails > tick **Keep my email addresses private**, then use the address shown there (`<id>+<username>@users.noreply.github.com`). Recommend it.
+   - Git name and email for commits (ask in plain text: they type both). Default: none; they must answer. Explain: both go into every commit, and on GitHub anyone can read them. GitHub's private address hides the real email and still links the commits to their account: GitHub > Settings > Emails > tick **Keep my email addresses private**, then use the address shown there (`<id>+<username>@users.noreply.github.com`). Recommend it.
    - Start Claude Code in bypass-permissions mode by default? Default: **yes**. The VM and gateway are the boundary, and that's what lets agents work without prompts. Deny rules and the secrets hook still apply.
 2. **Docker Engine**, from Docker's apt repository (docs.docker.com/engine/install/ubuntu):
    - Packages: `docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin`.
