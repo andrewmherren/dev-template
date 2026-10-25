@@ -125,12 +125,19 @@ flowchart LR
    ```
    The installed system then starts to an `agent-dev login:` prompt.
 
-7. **Bootstrap the dev VM** (PowerShell, this repo's folder; enter the `dev` password when asked):
+7. **Bootstrap the dev VM** (about 10 minutes; PowerShell, this repo's folder; enter the `dev` password when asked, including once for `sudo`):
    ```powershell
    scp -r setup\devvm agent-dev:
    ssh -t agent-dev sudo bash devvm/bootstrap.sh
    ```
-   Every network check should say `ok`. Then check `ssh agent-dev` connects **without** a password before closing anything; if it doesn't, the VM console still works.
+   What it does, in order (each part prints a `==` heading):
+   - **SSH:** your key only; password login off.
+   - **sudo** without a password for `dev` (agents can't type one).
+   - **Proxy:** points the system, apt and downloads at the gateway.
+   - **Packages:** updates everything Ubuntu installed (the longest part), then installs git, curl, jq, Node.js, the GitHub CLI and Claude Code.
+   - **Network checks:** each line should say `ok`.
+
+   Then check `ssh agent-dev` connects **without** a password before closing anything; if it doesn't, the VM console still works.
 
 8. **GitHub access for the VM.**
    - GitHub > Settings > Developer settings > **Fine-grained tokens** > Generate:
