@@ -77,7 +77,7 @@ flowchart LR
    | Next interface to initialize | `done` |
    | Do any manual network configuration? | `no` (the DNS questions come next either way) |
    | DNS domain / nameserver | blank / `1.1.1.1` |
-   | Root password | a strong one (you'll only need it until step 5, then at the console) |
+   | Root password | a strong one, saved in your password manager: after step 5 it's only for logging in at the VM console, if SSH ever stops working |
    | Timezone, proxy, NTP | yours, `none`, `chrony` |
    | Mirror | `f` (fastest) |
    | Set up a user | `no` |
@@ -110,7 +110,7 @@ flowchart LR
    | Mirror | the default. Being "offline", the installer may skip its check or say it can't connect: carry on (`bootstrap.sh` updates packages later, through the gateway) |
    | Storage | use the entire disk; **untick** "Set up this disk as an LVM group" |
    | Confirm destructive action | **Continue**: it erases only the VM's own new, empty virtual disk |
-   | Profile | your name: anything, e.g. `Dev` (it's only a label on the account, readable by everything in the VM); server `agent-dev`; username **`dev`**; a password |
+   | Profile | your name: anything, e.g. `Dev` (it's only a label on the account, readable by everything in the VM); server `agent-dev`; username **`dev`**; a strong password, saved in your password manager: after step 7 it's only for logging in at the VM console, if SSH ever stops working (sudo won't ask for it) |
    | Ubuntu Pro | skip |
    | SSH | **Install OpenSSH server**, allow password authentication (step 7 turns it off), no key import |
    | Snaps | none |
