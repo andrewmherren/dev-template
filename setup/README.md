@@ -115,7 +115,15 @@ flowchart LR
    | SSH | **Install OpenSSH server**, allow password authentication (step 7 turns it off), no key import |
    | Snaps | none |
 
-   Reboot when it's done. If the installer starts again, turn the VM off and on.
+   When it's done, choose **Reboot Now**. If it says to remove the installation medium, just press Enter: the VM boots from its disk first.
+
+   If the installer starts again anyway, eject the ISO and restart the VM (admin PowerShell; the console window reconnects by itself):
+   ```powershell
+   Get-VMDvdDrive -VMName agent-dev | Set-VMDvdDrive -Path $null
+   Stop-VM agent-dev -TurnOff
+   Start-VM agent-dev
+   ```
+   The installed system then starts to an `agent-dev login:` prompt.
 
 7. **Bootstrap the dev VM** (PowerShell, this repo's folder; enter the `dev` password when asked):
    ```powershell
