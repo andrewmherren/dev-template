@@ -43,6 +43,8 @@ table inet filter {
         # Replies to SSH from Windows, for the same reason as in input.
         oifname $NAT_IF ip daddr 192.168.200.1 tcp sport 22 accept
         ct state established,related accept
+        # The jump account's hop from Windows to the dev VM's SSH (ProxyJump).
+        oifname $LAN_IF ip daddr 10.10.0.10 tcp dport 22 accept
         ip daddr . tcp dport @access_out accept
         ip daddr { 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16 } drop
     }
