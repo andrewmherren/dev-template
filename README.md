@@ -15,6 +15,8 @@ A starting point for projects built with Claude Code running with a high level o
 | Bring in a repo I already have | [setup/README.md](setup/README.md) > 3 |
 | Remove a project | [setup/README.md](setup/README.md) > 4 |
 | Keep things up to date | [setup/README.md](setup/README.md) > Day to day |
+| Use local AI models (Ollama on Windows, with its GPU) instead of paid APIs | [setup/windows/ollama.md](setup/windows/ollama.md) (optional) |
+| Let a project's agent SSH into a device on my network (e.g. a Raspberry Pi) | the project's `/remote-device` skill: [setup/README.md](setup/README.md) > Optional extras |
 
 ## Layout
 

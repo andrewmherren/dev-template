@@ -8,6 +8,7 @@ Agents work in an isolated Linux VM that can only reach an allowlist of sites, a
 | [2. Start a new project](#2-start-a-new-project) | Each new project | about 10 minutes |
 | [3. Bring in an existing project](#3-bring-in-an-existing-project) | Each repo you already have | about 10 minutes |
 | [4. Remove a project](#4-remove-a-project) | When a project ends | a few minutes |
+| [Optional extras](#optional-extras) | When you want them | 10–30 minutes each |
 
 Sections 2–4 reuse the gateway, the dev VM and the GitHub token from section 1.
 
@@ -179,7 +180,7 @@ flowchart LR
 
 12. **Checkpoint** (admin PowerShell): `Checkpoint-VM -Name agent-gateway, agent-dev -SnapshotName clean`. A clean state to go back to.
 
-Next: [start a new project](#2-start-a-new-project) or [bring in an existing one](#3-bring-in-an-existing-project).
+Next: [start a new project](#2-start-a-new-project) or [bring in an existing one](#3-bring-in-an-existing-project). Local AI models and device access are [optional extras](#optional-extras).
 
 ## 2. Start a new project
 
@@ -201,13 +202,18 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 2. **Access:** remove the repo from the `agent-dev VM` token, and revoke the development keys that were in its `.env`.
 3. **Domains (optional):** remove ones only it needed: `ssh agent-gateway remove <domain>`. If a domain is also in [gateway/allowlist.txt](gateway/allowlist.txt), delete it there too, or re-running `setup-gateway.sh` adds it back.
 
+## Optional extras
+
+Off until you set them up. Each opens one host on your side of the gateway, made from Windows with `ssh agent-gateway access`, and `ssh agent-gateway access` alone lists what's open.
+
+- **Local AI models:** run Ollama on Windows, using its GPU, and let projects call it instead of paid APIs. Inference only: models are pulled on Windows. Guide: [windows/ollama.md](windows/ollama.md).
+- **A device on your network** (e.g. a Raspberry Pi) that a project's agent may SSH into: run `/remote-device` in that project. While its access is on, the device is a way around the gateway ([threat-model.md](threat-model.md)): the defaults limit what the agent can do there; keep sessions short.
+
 ## Day to day
 
 - **Gateway commands** (`ssh agent-gateway ...`): in a normal (not admin) PowerShell window on Windows, whose prompt starts with `PS`. Not in the VM, and not in VS Code's terminal while VS Code is connected to `agent-dev`: that terminal runs in the VM, where `agent-gateway` doesn't exist ("Could not resolve hostname"). If a window shows `dev@agent-dev`, type `exit` first.
 - **A site is blocked:** from Windows, `ssh agent-gateway denied` lists recent refusals; `ssh agent-gateway allow <domain>` adds one (`.domain.com` for its subdomains too), and `ssh agent-gateway remove <domain>` takes one off. If every setup will need it, add it to [gateway/allowlist.txt](gateway/allowlist.txt) as well.
-- **Openings to your side of the gateway (optional):** `ssh agent-gateway access` lists them; each is one host, off until you add it.
-  - Local AI models: run Ollama on Windows and let projects use it instead of paid APIs: [windows/ollama.md](windows/ollama.md).
-  - A device on your network (e.g. a Raspberry Pi) that a project's agent may SSH into: run `/remote-device` in that project. While its access is on, the device is a way around the gateway ([threat-model.md](threat-model.md)): keep sessions short.
+- **Openings to your side of the gateway:** `ssh agent-gateway access` lists them ([Optional extras](#optional-extras)).
 - **Monthly:** in the VM, `git -C ~/dev-template pull`, then in Claude run `/monthly-upkeep`. It also refreshes Claude's user config and skills, and lists projects behind the template. (A VM set up before the skills existed needs them once: `mkdir -p ~/.claude/skills && cp -r ~/dev-template/setup/devvm/claude-user/skills/* ~/.claude/skills/`.)
 - **Every few months:** `ssh agent-gateway release-upgrade` says whether Alpine has a newer release (the weekly updates stay within the installed one, which stops getting fixes after about two years); `release-upgrade apply` moves to it.
 - **Template changed:** in a project, run `/sync-template` to bring its rules, skills and guardrails up to date (on a branch, keeping the project's own edits).
