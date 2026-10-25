@@ -94,6 +94,8 @@ flowchart LR
    ```
    The last command should run without asking for a password (it prints nothing yet). The script turns password login off, so to run it again later (e.g. after a pull, or if this run was interrupted), use `agent-gateway` in place of `root@192.168.200.2` in the first two commands: that name logs in with your key.
 
+   Once `ssh agent-gateway denied` works, you can close the gateway's console window: the VM keeps running (closing the window doesn't stop it), and from now on you reach it by SSH.
+
 6. **Install Ubuntu on the dev VM** (about 15 minutes). In an **admin** PowerShell, start the VM and open its console window:
    ```powershell
    Start-VM agent-dev
@@ -137,7 +139,7 @@ flowchart LR
    - **Packages:** updates everything Ubuntu installed (the longest part), then installs git, curl, jq, Node.js, the GitHub CLI and Claude Code.
    - **Network checks:** each line should say `ok`.
 
-   Then check `ssh agent-dev` connects **without** a password before closing anything; if it doesn't, the VM console still works.
+   Then check `ssh agent-dev` connects **without** a password before closing anything; if it doesn't, the VM console still works. Once it does, close the dev VM's console window (closing it doesn't stop the VM). Steps 8–10 run in that SSH session. When you're done in the VM, type `exit` to get back to Windows: the prompt starts with `PS` again, and gateway commands like `ssh agent-gateway denied` only work from there.
 
 8. **GitHub access for the VM.**
    - GitHub > Settings > Developer settings > **Fine-grained tokens** > Generate:
