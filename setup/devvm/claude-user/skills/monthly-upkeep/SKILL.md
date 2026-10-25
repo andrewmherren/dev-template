@@ -13,7 +13,7 @@ The gateway updates itself weekly; this covers the dev VM. Best run after the us
 ## Steps
 
 1. **System packages:** `sudo apt-get update && sudo apt-get upgrade -y`. Note whether `/var/run/reboot-required` exists.
-2. **Claude Code:** `claude update`.
+2. **Claude Code:** `claude update` (it doesn't update itself here: `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` in `~/.claude/settings.json` also turns off the auto-updater).
 3. **Disk:**
    - `df -h /` and `docker system df`.
    - `docker system prune -f` (stopped containers, unused networks, dangling images; volumes are kept).
