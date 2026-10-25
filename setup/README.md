@@ -109,6 +109,7 @@ flowchart LR
    | Proxy | `http://10.10.0.1:3128` |
    | Mirror | the default. Being "offline", the installer may skip its check or say it can't connect: carry on (`bootstrap.sh` updates packages later, through the gateway) |
    | Storage | use the entire disk; **untick** "Set up this disk as an LVM group" |
+   | Confirm destructive action | **Continue**: it erases only the VM's own new, empty virtual disk |
    | Profile | your name, server `agent-dev`, username **`dev`**, a password |
    | Ubuntu Pro | skip |
    | SSH | **Install OpenSSH server**, allow password authentication (step 7 turns it off), no key import |
