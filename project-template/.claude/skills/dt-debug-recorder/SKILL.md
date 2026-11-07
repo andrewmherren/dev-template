@@ -1,5 +1,5 @@
 ---
-name: debug-recorder
+name: dt-debug-recorder
 description: How to build or change the app's debug recording - copy-debug-info snapshots, audit trails, dev notes, detail levels and retention, and marking untrusted content. Use when adding or changing logging, audit trails or debug tooling.
 ---
 

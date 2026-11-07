@@ -42,7 +42,7 @@ flowchart LR
 
 **Steps:**
 
-1. **Prepare (agent).** In this repo on Windows, start `claude` and run `/prepare-windows`. It checks your PC, sizes the VMs, and downloads and verifies the ISOs. If it says Hyper-V is off, enable it as it says, reboot and run it again. It ends with your next steps, filled in for your PC: steps 2 and 3 below (the SSH key, then creating the VMs), then on to step 4.
+1. **Prepare (agent).** In this repo on Windows, start `claude` and run `/dt-prepare-windows`. It checks your PC, sizes the VMs, and downloads and verifies the ISOs. If it says Hyper-V is off, enable it as it says, reboot and run it again. It ends with your next steps, filled in for your PC: steps 2 and 3 below (the SSH key, then creating the VMs), then on to step 4.
 
 2. **SSH key** (PowerShell, in this repo's folder):
    ```powershell
@@ -59,7 +59,7 @@ flowchart LR
    ```
    A passphrase is optional: the key only opens these two VMs. The copies are git-ignored.
 
-3. **Create the VMs:** run the `create-vms.ps1` command `/prepare-windows` gave you, in an **admin** PowerShell from this repo's folder. Or click through [windows/hyperv-manual.md](windows/hyperv-manual.md).
+3. **Create the VMs:** run the `create-vms.ps1` command `/dt-prepare-windows` gave you, in an **admin** PowerShell from this repo's folder. Or click through [windows/hyperv-manual.md](windows/hyperv-manual.md).
 
 4. **Install the gateway OS** (about 10 minutes). In an **admin** PowerShell, start the VM and open its console window:
    ```powershell
@@ -167,14 +167,14 @@ flowchart LR
      git -C ~/dev-template config credential.helper ''          # drop gh's helper for this repo...
      git -C ~/dev-template config --add credential.helper "$H"  # ...and use the read-only token
      ```
-   - **Protect default branches** where your plan allows (rulesets need a public repo, or GitHub Pro/Team for private ones), with the settings in [github-repo-settings.md](github-repo-settings.md). Agents may push feature branches; this stops anything pushing straight to `main`. `/new-project` and `/import-project` give you the checklist for each project.
+   - **Protect default branches** where your plan allows (rulesets need a public repo, or GitHub Pro/Team for private ones), with the settings in [github-repo-settings.md](github-repo-settings.md). Agents may push feature branches; this stops anything pushing straight to `main`. `/dt-new-project` and `/dt-import-project` give you the checklist for each project.
    - After pulling `dev-template` on Windows, read `git diff` of `setup/` before re-running any of its scripts there or on the gateway.
 
    The `agent-dev VM` token is the most valuable thing in the VM. Keep it to the repos it needs.
 
 9. **Log in to Claude:** in the VM, `cd ~/dev-template && claude`. Open the login link in your Windows browser and paste the code back.
 
-10. **Finish the VM (agent).** In that Claude session, run `/finish-vm-setup`. It asks two questions, installs Docker and Claude's user settings and skills, and checks the network.
+10. **Finish the VM (agent).** In that Claude session, run `/dt-finish-vm-setup`. It asks two questions, installs Docker and Claude's user settings and skills, and checks the network.
 
 11. **VS Code:** follow [windows/vscode-settings.md](windows/vscode-settings.md), then connect to `agent-dev`.
 
@@ -185,7 +185,7 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 ## 2. Start a new project
 
 1. **Connect to the VM:** open a new VS Code window on Windows. Ctrl+Shift+P > **Remote-SSH: Connect to Host** > `agent-dev` (the bottom-left corner shows `SSH: agent-dev` once connected). Then **Terminal > New Terminal**: it opens in the VM, in `~`.
-2. **Create it (agent):** in that terminal, `claude`, then `/new-project`. It asks for a name, description and stack, creates `~/projects/<name>` from the template, and makes the first commit.
+2. **Create it (agent):** in that terminal, `claude`, then `/dt-new-project`. It asks for a name, description and stack, creates `~/projects/<name>` from the template, and makes the first commit.
 3. **Connect it to GitHub:** follow the `next-steps/01-github-repo.md` it creates: an empty private repo, added to the `agent-dev VM` token, then the first push.
 4. **Open it:** in the same window, **File > Open Folder** > `/home/dev/projects/<name>`. VS Code reconnects with the project open; from now on, File > Open Recent gets you back to it.
 5. **As it grows:** put development-only keys in `.env` (agents add placeholders to `env.example`), and allow the domains its services need ([Day to day](#day-to-day)).
@@ -193,14 +193,14 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 ## 3. Bring in an existing project
 
 1. **Token:** GitHub > Settings > Developer settings > Fine-grained tokens > `agent-dev VM` > Repository access: add the repo.
-2. **Bring it in (agent):** connect to the VM and open a terminal ([step 1 above](#2-start-a-new-project)), then `claude` and `/import-project`. It clones the repo into `~/projects/`, can add this template's agent rules on a branch, runs the project once to find refused domains, and lists what's left for you.
+2. **Bring it in (agent):** connect to the VM and open a terminal ([step 1 above](#2-start-a-new-project)), then `claude` and `/dt-import-project`. It clones the repo into `~/projects/`, can add this template's agent rules on a branch, runs the project once to find refused domains, and lists what's left for you.
 3. **Secrets:** create its `.env` with **development-only** keys with low spending limits ([threat-model.md](threat-model.md)).
 4. **Domains:** `ssh agent-gateway denied` from Windows shows what was refused; allow what it needs.
 5. **Open it:** File > Open Folder > `/home/dev/projects/<name>` ([as for a new project](#2-start-a-new-project)).
 
 ## 4. Remove a project
 
-1. **Remove it (agent):** connect to the VM and open a terminal ([step 1 of a new project](#2-start-a-new-project)), then `claude` and `/remove-project`. It checks for anything unpushed (including `next-steps/` and `ideas/`, which aren't in git), asks before deleting, then removes the project's containers, volumes (its local databases) and folder.
+1. **Remove it (agent):** connect to the VM and open a terminal ([step 1 of a new project](#2-start-a-new-project)), then `claude` and `/dt-remove-project`. It checks for anything unpushed (including `next-steps/` and `ideas/`, which aren't in git), asks before deleting, then removes the project's containers, volumes (its local databases) and folder.
 2. **Access:** remove the repo from the `agent-dev VM` token, and revoke the development keys that were in its `.env`.
 3. **Domains (optional):** remove ones only it needed: `ssh agent-gateway remove <domain>`. If a domain is also in [gateway/allowlist.txt](gateway/allowlist.txt), delete it there too, or re-running `setup-gateway.sh` adds it back.
 
@@ -209,17 +209,17 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 Off until you set them up. Each opens one host on your side of the gateway, made from Windows with `ssh agent-gateway access`, and `ssh agent-gateway access` alone lists what's open.
 
 - **Local AI models:** run Ollama on Windows, using its GPU, and let projects call it instead of paid APIs. Inference only: models are pulled on Windows. Guide: [windows/ollama.md](windows/ollama.md).
-- **A device on your network** (e.g. a Raspberry Pi) that a project's agent may SSH into: run `/remote-device` in that project. While its access is on, the device is a way around the gateway ([threat-model.md](threat-model.md)): the defaults limit what the agent can do there; keep sessions short.
+- **A device on your network** (e.g. a Raspberry Pi) that a project's agent may SSH into: run `/dt-remote-device` in that project. While its access is on, the device is a way around the gateway ([threat-model.md](threat-model.md)): the defaults limit what the agent can do there; keep sessions short.
 
 ## Day to day
 
 - **Gateway commands** (`ssh agent-gateway ...`): in a normal (not admin) PowerShell window on Windows, whose prompt starts with `PS`. Not in the VM, and not in VS Code's terminal while VS Code is connected to `agent-dev`: that terminal runs in the VM, where `agent-gateway` doesn't exist ("Could not resolve hostname"). If a window shows `dev@agent-dev`, type `exit` first.
 - **A site is blocked:** from Windows, `ssh agent-gateway denied` lists recent refusals; `ssh agent-gateway allow <domain>` adds one (`.domain.com` for its subdomains too), and `ssh agent-gateway remove <domain>` takes one off. If every setup will need it, add it to [gateway/allowlist.txt](gateway/allowlist.txt) as well.
 - **Openings to your side of the gateway:** `ssh agent-gateway access` lists them ([Optional extras](#optional-extras)).
-- **Monthly:** in the VM, `git -C ~/dev-template pull`, then in Claude run `/monthly-upkeep`. It also refreshes Claude's user config and skills, and lists projects behind the template. (A VM set up before the skills existed needs them once: `mkdir -p ~/.claude/skills && cp -r ~/dev-template/setup/devvm/claude-user/skills/* ~/.claude/skills/`.)
-- **Every few months, in each project:** `/upgrade-dependencies sweep` updates every pinned version (`/monthly-upkeep` lists the projects that are due). When Dependabot opens a pull request in between: `/upgrade-dependencies review <PR#>`.
+- **Monthly:** in the VM, `git -C ~/dev-template pull`, then in Claude run `/dt-monthly-upkeep`. It also refreshes Claude's user config and skills, and lists projects behind the template. (A VM set up before the skills existed needs them once: `mkdir -p ~/.claude/skills && cp -r ~/dev-template/setup/devvm/claude-user/skills/* ~/.claude/skills/`.)
+- **Every few months, in each project:** `/dt-upgrade-dependencies sweep` updates every pinned version (`/dt-monthly-upkeep` lists the projects that are due). When Dependabot opens a pull request in between: `/dt-upgrade-dependencies review <PR#>`.
 - **Every few months, the gateway:** `ssh agent-gateway release-upgrade` says whether Alpine has a newer release (the weekly updates stay within the installed one, which stops getting fixes after about two years); `release-upgrade apply` moves to it.
-- **Template changed:** in a project, run `/sync-template` to bring its rules, skills and guardrails up to date (on a branch, keeping the project's own edits).
+- **Template changed:** in a project, run `/dt-sync-template` to bring its rules, skills and guardrails up to date (on a branch, keeping the project's own edits).
 - **Disk space on Windows:** the VM's disk file grows but never shrinks by itself: [maintenance/disk-space.md](maintenance/disk-space.md).
 - **Something seems off:** go back to the checkpoint, or rebuild: [maintenance/rebuild.md](maintenance/rebuild.md).
 

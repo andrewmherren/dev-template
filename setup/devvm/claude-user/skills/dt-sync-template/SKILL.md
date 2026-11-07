@@ -1,5 +1,5 @@
 ---
-name: sync-template
+name: dt-sync-template
 description: Bring the current project's agent rules, skills, guardrails and docs skeleton up to date with ~/dev-template/project-template, keeping the project's own changes.
 disable-model-invocation: true
 ---

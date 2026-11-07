@@ -1,6 +1,6 @@
 # GitHub settings for a repo agents push to
 
-Agents in the dev VM push feature branches; you merge. These settings make GitHub enforce that, and keep a planted instruction from doing much with the VM's token. `/new-project` and `/import-project` write the ones that fit into the project's `next-steps/`.
+Agents in the dev VM push feature branches; you merge. These settings make GitHub enforce that, and keep a planted instruction from doing much with the VM's token. `/dt-new-project` and `/dt-import-project` write the ones that fit into the project's `next-steps/`.
 
 Which ones are available:
 
@@ -41,7 +41,7 @@ Settings > **Actions** > **General**:
 ## Security
 
 Settings > **Advanced Security** (or **Code security**):
-- **Dependabot alerts** and **Dependabot security updates**: on. Version updates come from `.github/dependabot.yml`, which the project's `/upgrade-dependencies sweep` writes; `/upgrade-dependencies review <PR#>` checks each pull request Dependabot opens.
+- **Dependabot alerts** and **Dependabot security updates**: on. Version updates come from `.github/dependabot.yml`, which the project's `/dt-upgrade-dependencies sweep` writes; `/dt-upgrade-dependencies review <PR#>` checks each pull request Dependabot opens.
 - Public repos: **Secret Protection** (secret scanning) with **Push protection**, and **Private vulnerability reporting**: on.
 
 ## General

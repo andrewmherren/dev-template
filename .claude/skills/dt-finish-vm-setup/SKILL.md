@@ -1,5 +1,5 @@
 ---
-name: finish-vm-setup
+name: dt-finish-vm-setup
 description: Finish setting up the agent dev VM after bootstrap.sh (setup/README.md, step 10) - Docker, Claude Code user config and skills, updates, git, network checks.
 disable-model-invocation: true
 ---
@@ -30,8 +30,8 @@ For Claude Code in the dev VM, started in `~/dev-template` after `bootstrap.sh` 
 3. **Claude Code's user-level config**, from `~/dev-template/setup/devvm/claude-user/`:
    - Copy `hooks/` into `~/.claude/hooks/`, plus from `~/dev-template/project-template/.claude/hooks/`: `shell-words.js`, `guard-git-push.js`, `guard-remote-device.js`, and the two guards' tests `test-guard-git-push.js` and `test-guard-remote-device.js` (one copy each, in the project template; the VM runs them for every repo; `shell-words.js` is a helper they share, tested through them). Run each `node ~/.claude/hooks/test-*.js`: every case must pass.
    - `CLAUDE.md` → `~/.claude/CLAUDE.md`.
-   - Each folder in `skills/` → `~/.claude/skills/<name>/` (`new-project`, `import-project`, `remove-project`, `sync-template`, `monthly-upkeep`). Replace any existing copy.
-   - `settings.json` → `~/.claude/settings.json`. If one exists, merge: keep its other keys, add these. Set `defaultMode` to their choice: `auto` or `bypassPermissions`. Its `env` turns off Claude Code's telemetry, error reports and auto-updater (the gateway would refuse them; `/monthly-upkeep` updates Claude Code).
+   - Each folder in `skills/` → `~/.claude/skills/<name>/` (`dt-new-project`, `dt-import-project`, `dt-remove-project`, `dt-sync-template`, `dt-monthly-upkeep`). Replace any existing copy.
+   - `settings.json` → `~/.claude/settings.json`. If one exists, merge: keep its other keys, add these. Set `defaultMode` to their choice: `auto` or `bypassPermissions`. Its `env` turns off Claude Code's telemetry, error reports and auto-updater (the gateway would refuse them; `/dt-monthly-upkeep` updates Claude Code).
 4. **Updates:** make sure unattended-upgrades applies security updates daily without rebooting (Ubuntu's default: check `/etc/apt/apt.conf.d/20auto-upgrades` and `50unattended-upgrades`).
 5. **Git:** `git config --global user.name/user.email` (their answers), `init.defaultBranch main`, `pull.ff only`. Create `~/projects/`.
 6. **Network check:** re-run every `check` at the end of `~/dev-template/setup/devvm/bootstrap.sh` by hand, with the same curl arguments; each must give its expected result.

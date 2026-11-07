@@ -20,7 +20,7 @@ flowchart LR
 - **Your Windows life:** files, browser sessions, saved passwords, SSH keys, cloud credentials. They aren't in the VM, and VS Code is set up not to lend them across (`windows/vscode-settings.md`).
 - **Sending data to arbitrary servers:** the dev VM has no route to the internet. Its only way out is the gateway's proxy, and nothing in the dev VM can change that, even as root. The proxy allows only listed domains: both the host name a connection asks for and the name inside its TLS handshake must be on the list, bare IP addresses are refused, and names that aren't listed are never looked up in DNS.
 - **The setup scripts:** the VM can't write to `dev-template` (its token is read-only there), so nothing in it can change the scripts you run on Windows and the gateway.
-- **Your home network and the Windows host:** the dev VM sits on a private switch; the proxy refuses private addresses, and the gateway's own firewall won't connect to them either. The exceptions are opt-in, one host each, made from Windows with `ssh agent-gateway access`: Ollama's inference endpoints on Windows ([windows/ollama.md](windows/ollama.md)), or SSH to one device on your network (the project skill `remote-device`).
+- **Your home network and the Windows host:** the dev VM sits on a private switch; the proxy refuses private addresses, and the gateway's own firewall won't connect to them either. The exceptions are opt-in, one host each, made from Windows with `ssh agent-gateway access`: Ollama's inference endpoints on Windows ([windows/ollama.md](windows/ollama.md)), or SSH to one device on your network (the project skill `dt-remote-device`).
 - **Lasting damage:** checkpoints, and both VMs rebuild from this repo's scripts.
 
 ## Not protected

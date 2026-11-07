@@ -1,5 +1,5 @@
 ---
-name: remote-device
+name: dt-remote-device
 description: Give this project's agent SSH access to a device on the user's network (e.g. a Raspberry Pi) - a gateway opening for that one device, a dedicated key, and a device account the user turns on and off, which expires on its own.
 disable-model-invocation: true
 ---

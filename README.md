@@ -17,7 +17,7 @@ A starting point for projects built with Claude Code running with a high level o
 | Keep things up to date | [setup/README.md](setup/README.md) > Day to day |
 | See every agent skill and when to run it | [Skills](#skills), below |
 | Use local AI models (Ollama on Windows, with its GPU) instead of paid APIs | [setup/windows/ollama.md](setup/windows/ollama.md) (optional) |
-| Let a project's agent SSH into a device on my network (e.g. a Raspberry Pi) | the project's `/remote-device` skill: [setup/README.md](setup/README.md) > Optional extras |
+| Let a project's agent SSH into a device on my network (e.g. a Raspberry Pi) | the project's `/dt-remote-device` skill: [setup/README.md](setup/README.md) > Optional extras |
 
 ## Layout
 
@@ -25,11 +25,11 @@ A starting point for projects built with Claude Code running with a high level o
 |---|---|
 | `setup/windows/` | VM creation (script and manual), SSH and VS Code settings for Windows |
 | `setup/gateway/` | The Alpine gateway: Squid proxy, allowlist, firewall |
-| `setup/devvm/` | The Ubuntu dev VM: bootstrap script, Claude's user-level config and skills (`/new-project`, `/import-project`, `/remove-project`, `/sync-template`, `/monthly-upkeep`) |
+| `setup/devvm/` | The Ubuntu dev VM: bootstrap script, Claude's user-level config and skills (`/dt-new-project`, `/dt-import-project`, `/dt-remove-project`, `/dt-sync-template`, `/dt-monthly-upkeep`) |
 | `setup/maintenance/` | Going back to a checkpoint, rebuilding, getting disk space back |
 | `setup/github-repo-settings.md` | GitHub settings for repos agents push to (rulesets, Actions, security) |
-| `project-template/` | Copied into each new project by `/new-project` |
-| `.claude/skills/` | Agent skills run in this repo: `/prepare-windows`, `/finish-vm-setup` ([Skills](#skills)) |
+| `project-template/` | Copied into each new project by `/dt-new-project` |
+| `.claude/skills/` | Agent skills run in this repo: `/dt-prepare-windows`, `/dt-finish-vm-setup` ([Skills](#skills)) |
 
 ## Skills
 
@@ -37,18 +37,18 @@ Agent procedures are Claude Code skills (`SKILL.md` files). You run them by typi
 
 | Skill | Run in | When | What it does |
 |---|---|---|---|
-| `/prepare-windows` | this repo, on Windows | setting up (step 1) | Checks the PC, sizes the VMs, downloads and verifies the ISOs |
-| `/finish-vm-setup` | `~/dev-template` in the VM | setting up (step 10) | Docker, Claude's user settings, hooks and skills, network checks |
-| `/new-project` | the VM, any folder | each new project | Creates `~/projects/<name>` from the template, with its GitHub checklist |
-| `/import-project` | the VM, any folder | each existing repo | Clones it, checks what would run on its own, adds the template's rules on a branch |
-| `/remove-project` | the VM, any folder | when a project ends | Checks nothing is unpushed, then deletes its containers, data and folder |
-| `/sync-template` | a project | after the template changes | Brings its rules, skills and guardrails up to date, keeping its own edits |
-| `/monthly-upkeep` | the VM, any folder | monthly | Updates the VM and Claude, checks the network fence and hooks, lists projects behind the template or due a dependency sweep |
-| `/upgrade-dependencies` | a project | `review <PR#>` for each Dependabot pull request; `sweep` every few months | Reviews an update (changelog, CI, local checks), or updates every pinned version on patch, minor and per-major branches |
-| `/remote-device` | a project | optional | Lets the project's agent SSH into one device on your network (Raspberry Pi first) |
+| `/dt-prepare-windows` | this repo, on Windows | setting up (step 1) | Checks the PC, sizes the VMs, downloads and verifies the ISOs |
+| `/dt-finish-vm-setup` | `~/dev-template` in the VM | setting up (step 10) | Docker, Claude's user settings, hooks and skills, network checks |
+| `/dt-new-project` | the VM, any folder | each new project | Creates `~/projects/<name>` from the template, with its GitHub checklist |
+| `/dt-import-project` | the VM, any folder | each existing repo | Clones it, checks what would run on its own, adds the template's rules on a branch |
+| `/dt-remove-project` | the VM, any folder | when a project ends | Checks nothing is unpushed, then deletes its containers, data and folder |
+| `/dt-sync-template` | a project | after the template changes | Brings its rules, skills and guardrails up to date, keeping its own edits |
+| `/dt-monthly-upkeep` | the VM, any folder | monthly | Updates the VM and Claude, checks the network fence and hooks, lists projects behind the template or due a dependency sweep |
+| `/dt-upgrade-dependencies` | a project | `review <PR#>` for each Dependabot pull request; `sweep` every few months | Reviews an update (changelog, CI, local checks), or updates every pinned version on patch, minor and per-major branches |
+| `/dt-remote-device` | a project | optional | Lets the project's agent SSH into one device on your network (Raspberry Pi first) |
 
-Two more load by themselves when an agent needs them: `write-docs` (writing `docs/` pages) and `debug-recorder` (building debug recording).
+Two more load by themselves when an agent needs them: `dt-write-docs` (writing `docs/` pages) and `dt-debug-recorder` (building debug recording).
 
 ## Making it yours
 
-The rule files in `project-template/.claude/rules/` describe one way of working. If you use this template, edit them to suit you. Projects keep their own copies; `/sync-template` brings one up to date with the template.
+The rule files in `project-template/.claude/rules/` describe one way of working. If you use this template, edit them to suit you. Projects keep their own copies; `/dt-sync-template` brings one up to date with the template.
