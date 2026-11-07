@@ -1,5 +1,5 @@
 ---
-name: monthly-upkeep
+name: dt-monthly-upkeep
 description: Monthly upkeep of the agent dev VM - packages, Claude Code, disk, network fence, secrets guard, user-level config and projects behind the template.
 disable-model-invocation: true
 ---
@@ -20,8 +20,8 @@ The gateway updates itself weekly; this covers the dev VM. Best run after the us
    - If the disk is over 80% full, list the biggest images and volumes and ask before removing any.
 4. **Network still fenced in:** run every `check` at the end of `~/dev-template/setup/devvm/bootstrap.sh` by hand, with the same curl arguments. If a blocked check succeeds, stop and tell the user straight away: the gateway isn't doing its job.
 5. **Hooks:** every `node ~/.claude/hooks/test-*.js` passes.
-6. **User-level config:** compare `~/dev-template/setup/devvm/claude-user/` (`CLAUDE.md`, `hooks/`, `skills/`, `settings.json`), and from `~/dev-template/project-template/.claude/hooks/` `shell-words.js`, `guard-git-push.js`, `guard-remote-device.js` and their tests, with `~/.claude/`. Show what differs and ask; then copy the changed files (merge `settings.json`: keep keys that aren't in the template) and re-run step 5.
-7. **Projects behind the template:** for each `~/projects/*`, compare `.claude/template-version` (missing in older projects) with `git -C ~/dev-template rev-parse HEAD`. List the ones behind; the user runs `/sync-template` in each when convenient. Also list projects due a dependency sweep: their last commit on `origin/main` starting `deps(sweep):` (`git -C <project> log origin/main -1 --format=%cs --grep="^deps(sweep):"`) is more than 90 days old, or there is none and the project's first commit is. The user runs `/upgrade-dependencies sweep` there.
+6. **User-level config:** compare `~/dev-template/setup/devvm/claude-user/` (`CLAUDE.md`, `hooks/`, `skills/`, `settings.json`), and from `~/dev-template/project-template/.claude/hooks/` `shell-words.js`, `guard-git-push.js`, `guard-remote-device.js` and their tests, with `~/.claude/`. Show what differs and ask; then copy the changed files (merge `settings.json`: keep keys that aren't in the template) and re-run step 5. Then delete the skill folders retired by the `dt-` prefix, without asking, if present: `~/.claude/skills/` `new-project`, `import-project`, `remove-project`, `sync-template`, `monthly-upkeep`. Only those five names.
+7. **Projects behind the template:** for each `~/projects/*`, compare `.claude/template-version` (missing in older projects) with `git -C ~/dev-template rev-parse HEAD`. List the ones behind; the user runs `/dt-sync-template` in each when convenient. Also list projects due a dependency sweep: their last commit on `origin/main` starting `deps(sweep):` (`git -C <project> log origin/main -1 --format=%cs --grep="^deps(sweep):"`) is more than 90 days old, or there is none and the project's first commit is. The user runs `/dt-upgrade-dependencies sweep` there.
 8. **Report**, short:
    - What was updated (old → new versions where notable), disk before and after.
    - Whether a reboot is needed (the user runs `sudo reboot` when convenient).

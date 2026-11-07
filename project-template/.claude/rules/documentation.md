@@ -18,7 +18,7 @@ How to keep the project's documentation. Followed by every agent that changes co
 
 - `docs/` has one folder per audience: `developer/` (how the system works, with Mermaid diagrams), `product/`, `customer/`, `compliance/`. Each has a `README.md` index.
 - Code comments link to the relevant doc page, and cite TECH_SPEC decisions by D-number.
-- How to write pages and links: the `write-docs` skill.
+- How to write pages and links: the `dt-write-docs` skill.
 
 ## Timeline
 

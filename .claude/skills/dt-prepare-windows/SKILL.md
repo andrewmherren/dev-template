@@ -1,5 +1,5 @@
 ---
-name: prepare-windows
+name: dt-prepare-windows
 description: Prepare a Windows PC for the agent workstation (setup/README.md, step 1) - check Hyper-V, size the VMs, download and verify the ISOs, and give the user the create-vms.ps1 command.
 disable-model-invocation: true
 ---

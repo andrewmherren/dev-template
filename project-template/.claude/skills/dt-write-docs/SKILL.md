@@ -1,5 +1,5 @@
 ---
-name: write-docs
+name: dt-write-docs
 description: How to write or update pages in docs/ (developer, product, customer, compliance) - what each audience needs, page format, Mermaid diagrams, and links between docs and code. Use whenever creating or editing documentation.
 ---
 

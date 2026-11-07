@@ -1,5 +1,5 @@
 ---
-name: new-project
+name: dt-new-project
 description: Start a new project in ~/projects from ~/dev-template/project-template (setup/README.md, section 2).
 disable-model-invocation: true
 ---
@@ -27,7 +27,7 @@ Creates `~/projects/<name>` from `~/dev-template/project-template/`.
    | `{{CORE_LOGIC_PATH}}` | "not set yet" (filled in once there's code) |
    | `{{CHECKS}}` | "none yet" (filled in once there's code) |
 
-4. **Template version:** write `git -C ~/dev-template rev-parse HEAD` into `.claude/template-version`. `/sync-template` uses it to tell template changes from this project's own edits.
+4. **Template version:** write `git -C ~/dev-template rev-parse HEAD` into `.claude/template-version`. `/dt-sync-template` uses it to tell template changes from this project's own edits.
 5. **next-steps/** (git-ignored, for the user):
    - `next-steps/project-view.md`, following `.claude/rules/working-style.md` > Project view: `1. (complete) Create the project from dev-template`, then `2. Choose the stack and plan the first slice`.
    - `next-steps/01-github-repo.md`:

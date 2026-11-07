@@ -7,7 +7,7 @@
 #   ssh agent-gateway access                              what's open
 #   ssh agent-gateway access add ollama                   Ollama on Windows, inference only (setup/windows/ollama.md)
 #   ssh agent-gateway access add ssh <name> <ip> [port] --accept-risk
-#                                                         SSH to one device (project skill remote-device);
+#                                                         SSH to one device (project skill dt-remote-device);
 #                                                         without --accept-risk it explains the risk
 #   ssh agent-gateway access remove <name>
 set -eu
@@ -135,7 +135,7 @@ add)
 Opening SSH from the dev VM to $ip makes that device a way around this gateway: while the
 device lets the agent in, anything in the VM can run commands there, and the device can send
 data anywhere it can reach, past the allowlist. Its agent account should have no sudo and no
-outbound network (the remote-device skill's defaults), and access only for short sessions.
+outbound network (the dt-remote-device skill's defaults), and access only for short sessions.
 To go ahead:  access add ssh $name $ip${5:+ $5} --accept-risk
 EOF
             exit 2

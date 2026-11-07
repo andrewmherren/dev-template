@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// PreToolUse guardrail for devices set up with the remote-device skill. While its access is on, a
+// PreToolUse guardrail for devices set up with the dt-remote-device skill. While its access is on, a
 // device is a way around the gateway: whatever reaches it can go on to the internet from there. So:
 // - denied: forwarding and jump options, a raw tunnel through the gateway's device port, tunnels
 //   hidden in bash -c and the like, and changing the device's access, firewall or SSH setup;
@@ -67,7 +67,7 @@ process.stdin.on('end', () => {
 });
 
 function decide(decision, reason) {
-    const why = 'The device can reach the internet, so it could carry data past the gateway (remote-device skill).';
+    const why = 'The device can reach the internet, so it could carry data past the gateway (dt-remote-device skill).';
     console.log(JSON.stringify({
         hookSpecificOutput: {
             hookEventName: 'PreToolUse',

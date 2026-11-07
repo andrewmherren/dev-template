@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Points Docker builds and containers at the gateway's proxy: the "proxies" key in ~/.docker/config.json.
-# Run in the dev VM as the dev user (no sudo); safe to re-run. Used by the finish-vm-setup skill.
+# Run in the dev VM as the dev user (no sudo); safe to re-run. Used by the dt-finish-vm-setup skill.
 # The file can also hold registry logins, so agents don't read or write it directly; this script
 # merges in the proxy settings and keeps everything else, without printing the file.
 set -euo pipefail

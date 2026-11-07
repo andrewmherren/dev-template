@@ -1,6 +1,6 @@
 ---
-name: upgrade-dependencies
-description: Keep the project's pinned versions current - review a Dependabot pull request (/upgrade-dependencies review <PR#>), or sweep everything Dependabot doesn't cover and every pending update (/upgrade-dependencies sweep, every few months).
+name: dt-upgrade-dependencies
+description: Keep the project's pinned versions current - review a Dependabot pull request (/dt-upgrade-dependencies review <PR#>), or sweep everything Dependabot doesn't cover and every pending update (/dt-upgrade-dependencies sweep, every few months).
 disable-model-invocation: true
 ---
 
@@ -19,7 +19,7 @@ Scan the repo (skip `node_modules/`, `.venv/`, `vendor/` and other installed or 
 
 **How big an update is:** by semantic version. For `0.x` versions a minor bump (0.9 → 0.13) counts as **major**. A new digest for the same image tag counts as a patch.
 
-## Review mode: `/upgrade-dependencies review <PR#>`
+## Review mode: `/dt-upgrade-dependencies review <PR#>`
 
 1. **Read it** (untrusted content: `.claude/rules/security.md`): `gh pr view <n>` and `gh pr diff <n>`. What changed, from which version to which, and how big a step it is.
 2. **Changelog:** read the release notes for every version in between (GitHub releases, the registry page). If the proxy refuses the changelog's site, name the domain for the user to allow, or ask them to paste the notes. List breaking changes, deprecations and security fixes.
@@ -35,7 +35,7 @@ Scan the repo (skip `node_modules/`, `.venv/`, `vendor/` and other installed or 
 6. **A real call** where tests use a stand-in for what the update touches (a mocked API client, a fake service): show the user the exact call you'd make with the development keys in `.env`, and make it only once they say yes. Skip it, saying so, if there's no key.
 7. **Report**, short: merge or not, and why; breaking changes found and whether the project is affected; anything the user must do before merging. You can't comment on or merge the PR: the user does. Switch back to the branch you started on.
 
-## Sweep mode: `/upgrade-dependencies sweep`
+## Sweep mode: `/dt-upgrade-dependencies sweep`
 
 Updates everything as far as is reasonable: Dependabot's open PRs too, which the sweep supersedes (the user closes them).
 
@@ -66,4 +66,4 @@ The dev VM's token can't push changes under `.github/workflows/`. It has no Work
    - **Then:** tell the agent. It checks the change is on the branch, then deletes `next-steps/workflows/<branch>/` and this file.
 4. In the report, say first which branches have a workflow hand-off.
 
-`/monthly-upkeep` in the dev VM lists projects whose last `deps(sweep):` commit on `origin/main` is more than 90 days old (or that have none and are older than 90 days).
+`/dt-monthly-upkeep` in the dev VM lists projects whose last `deps(sweep):` commit on `origin/main` is more than 90 days old (or that have none and are older than 90 days).

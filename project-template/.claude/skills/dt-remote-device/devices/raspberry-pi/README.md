@@ -24,7 +24,7 @@ From **Windows PowerShell**, with the real values:
 1. **Gateway opening:** `ssh agent-gateway access add ssh <name> <ip>` explains the risk; once you've read it, `ssh agent-gateway access add ssh <name> <ip> --accept-risk`.
 2. **Copy the script and the agent's public key** to the Pi (through your Windows temp folder):
    ```powershell
-   scp "agent-dev:projects/<project>/.claude/skills/remote-device/devices/raspberry-pi/setup-agent-account.sh" "agent-dev:.ssh/<name>-agent.pub" $env:TEMP\
+   scp "agent-dev:projects/<project>/.claude/skills/dt-remote-device/devices/raspberry-pi/setup-agent-account.sh" "agent-dev:.ssh/<name>-agent.pub" $env:TEMP\
    scp $env:TEMP\setup-agent-account.sh $env:TEMP\<name>-agent.pub <you>@<ip>:/tmp/
    ```
 3. **Run it on the Pi:**

@@ -1,5 +1,5 @@
 ---
-name: sync-template
+name: dt-sync-template
 description: Bring the current project's agent rules, skills, guardrails and docs skeleton up to date with ~/dev-template/project-template, keeping the project's own changes.
 disable-model-invocation: true
 ---
@@ -14,6 +14,7 @@ Run in the project's folder. The user pulls `~/dev-template` first (`git -C ~/de
 2. **Branch:** `chore/sync-template`, made as in `.claude/rules/engineering-style.md` > Version control.
 3. **Compare**, file by file, under `~/dev-template/project-template/`:
    - **Template-owned** (update): `.claude/rules/*.md` except `project.md`, `.claude/skills/`, `.claude/hooks/`.
+   - **Retired** (delete without asking, if present): `.claude/skills/` `upgrade-dependencies`, `remote-device`, `write-docs`, `debug-recorder`, now `dt-` prefixed. Only those four names: other folders in `.claude/skills/` are the project's own. Also point out `next-steps/` files that mention the old names or paths (`.claude/skills/remote-device/...`).
    - **Merged** (add what's new, keep the project's entries): `.claude/settings.json` (permissions and hooks), `.gitignore`, `env.example`.
    - **Project-owned** (never overwrite): `.claude/rules/project.md`, `CLAUDE.md`, `README.md`, `TECH_SPEC.md`, `history/`, `docs/` pages. For these, only point out new sections or index files the template added (e.g. a new `docs/<audience>/README.md`) and offer to add them.
 4. **Template changes vs project edits:** with a version, `git -C ~/dev-template diff <version> HEAD -- project-template/<path>` is what the template changed; `git diff` against the project's file shows what the project changed. Apply the template's changes and keep the project's edits. Without a version, show both versions of each differing file and ask which way to go.

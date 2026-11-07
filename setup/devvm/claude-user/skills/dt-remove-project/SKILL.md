@@ -1,5 +1,5 @@
 ---
-name: remove-project
+name: dt-remove-project
 description: Remove a project from ~/projects on the dev VM - check nothing is unpushed, delete its containers, volumes and folder, and list the user's remaining steps (setup/README.md, section 4).
 disable-model-invocation: true
 ---

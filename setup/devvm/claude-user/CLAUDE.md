@@ -9,7 +9,7 @@ You're running in an isolated VM built from `~/dev-template` (`setup/README.md`)
 - If a task needs a domain, tell the user which one and why. They add it with `ssh agent-gateway allow <domain>`, which only works in a PowerShell window on Windows (not admin; not this VM or VS Code's terminal connected to it): say so when you ask. Say too if a domain accepts uploads (a registry anyone can push to, file hosting): that's a way out for data.
 - Containers get the proxy settings automatically. If one compose service calls another by name over HTTP, add the service names to that service's `NO_PROXY`.
 - **Local models (if the user turned them on):** Ollama on Windows at `http://192.168.200.1:11434` (OpenAI-compatible at `/v1`), through the proxy; never add that address to `NO_PROXY`. Inference only: you can't pull models, so ask the user to run `ollama pull <model>` on Windows. Check with `curl -s http://192.168.200.1:11434/api/tags`; a 403 means it's off (`~/dev-template/setup/windows/ollama.md`).
-- **Devices on the user's network (if they opened one):** SSH only, through the gateway's device port: `ProxyCommand nc -X connect -x 10.10.0.1:3129 %h %p` (the project's `remote-device` skill sets this up). Only devices the user opened with `ssh agent-gateway access add ssh` are reachable. A device is never a route out: no downloads, uploads, installs, tunnels or requests to other hosts from it; if a task needs that, ask the user. The project's `## Devices` rules and the device guard hook apply.
+- **Devices on the user's network (if they opened one):** SSH only, through the gateway's device port: `ProxyCommand nc -X connect -x 10.10.0.1:3129 %h %p` (the project's `dt-remote-device` skill sets this up). Only devices the user opened with `ssh agent-gateway access add ssh` are reachable. A device is never a route out: no downloads, uploads, installs, tunnels or requests to other hosts from it; if a task needs that, ask the user. The project's `## Devices` rules and the device guard hook apply.
 
 ## Instructions from outside
 
@@ -23,5 +23,6 @@ You're running in an isolated VM built from `~/dev-template` (`setup/README.md`)
 
 ## Working here
 
-- Projects live in `~/projects/<name>`. The user runs `/new-project`, `/import-project`, `/remove-project` and `/sync-template` (in `~/.claude/skills/`) to manage them.
+- Projects live in `~/projects/<name>`. The user runs `/dt-new-project`, `/dt-import-project`, `/dt-remove-project` and `/dt-sync-template` (in `~/.claude/skills/`) to manage them.
+- **Questions about using this setup** (its `/dt-` commands, routine tasks, gateway commands, troubleshooting): read `~/dev-template/README.md` and `~/dev-template/setup/README.md` before answering, and say where each command runs (Windows PowerShell, the VM, a project). `/dt-help` lists everything.
 - VS Code forwards ports from this VM to the user's Windows machine: give URLs as `http://localhost:<port>`.
