@@ -184,21 +184,23 @@ Next: [start a new project](#2-start-a-new-project) or [bring in an existing one
 
 ## 2. Start a new project
 
-1. **Create it (agent):** in the VM, `cd ~ && claude`, then `/new-project`. It asks for a name, description and stack, creates `~/projects/<name>` from the template, and makes the first commit.
-2. **Connect it to GitHub:** follow the `next-steps/01-github-repo.md` it creates: an empty private repo, added to the `agent-dev VM` token, then the first push.
-3. **Open it:** VS Code > Remote-SSH > `agent-dev` > open `~/projects/<name>`.
-4. **As it grows:** put development-only keys in `.env` (agents add placeholders to `env.example`), and allow the domains its services need ([Day to day](#day-to-day)).
+1. **Connect to the VM:** open a new VS Code window on Windows. Ctrl+Shift+P > **Remote-SSH: Connect to Host** > `agent-dev` (the bottom-left corner shows `SSH: agent-dev` once connected). Then **Terminal > New Terminal**: it opens in the VM, in `~`.
+2. **Create it (agent):** in that terminal, `claude`, then `/new-project`. It asks for a name, description and stack, creates `~/projects/<name>` from the template, and makes the first commit.
+3. **Connect it to GitHub:** follow the `next-steps/01-github-repo.md` it creates: an empty private repo, added to the `agent-dev VM` token, then the first push.
+4. **Open it:** in the same window, **File > Open Folder** > `/home/dev/projects/<name>`. VS Code reconnects with the project open; from now on, File > Open Recent gets you back to it.
+5. **As it grows:** put development-only keys in `.env` (agents add placeholders to `env.example`), and allow the domains its services need ([Day to day](#day-to-day)).
 
 ## 3. Bring in an existing project
 
 1. **Token:** GitHub > Settings > Developer settings > Fine-grained tokens > `agent-dev VM` > Repository access: add the repo.
-2. **Bring it in (agent):** in the VM, `cd ~ && claude`, then `/import-project`. It clones the repo into `~/projects/`, can add this template's agent rules on a branch, runs the project once to find refused domains, and lists what's left for you.
+2. **Bring it in (agent):** connect to the VM and open a terminal ([step 1 above](#2-start-a-new-project)), then `claude` and `/import-project`. It clones the repo into `~/projects/`, can add this template's agent rules on a branch, runs the project once to find refused domains, and lists what's left for you.
 3. **Secrets:** create its `.env` with **development-only** keys with low spending limits ([threat-model.md](threat-model.md)).
 4. **Domains:** `ssh agent-gateway denied` from Windows shows what was refused; allow what it needs.
+5. **Open it:** File > Open Folder > `/home/dev/projects/<name>` ([as for a new project](#2-start-a-new-project)).
 
 ## 4. Remove a project
 
-1. **Remove it (agent):** in the VM, `cd ~ && claude`, then `/remove-project`. It checks for anything unpushed (including `next-steps/` and `ideas/`, which aren't in git), asks before deleting, then removes the project's containers, volumes (its local databases) and folder.
+1. **Remove it (agent):** connect to the VM and open a terminal ([step 1 of a new project](#2-start-a-new-project)), then `claude` and `/remove-project`. It checks for anything unpushed (including `next-steps/` and `ideas/`, which aren't in git), asks before deleting, then removes the project's containers, volumes (its local databases) and folder.
 2. **Access:** remove the repo from the `agent-dev VM` token, and revoke the development keys that were in its `.env`.
 3. **Domains (optional):** remove ones only it needed: `ssh agent-gateway remove <domain>`. If a domain is also in [gateway/allowlist.txt](gateway/allowlist.txt), delete it there too, or re-running `setup-gateway.sh` adds it back.
 
