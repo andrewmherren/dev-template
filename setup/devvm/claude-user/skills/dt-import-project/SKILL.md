@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # Bring in an existing project
 
+First, update `~/dev-template` as in `~/.claude/skills/dt-sync-template/SKILL.md` > Update the template first.
+
 ## Steps
 
 1. **Ask first**, all together:

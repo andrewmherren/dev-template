@@ -6,7 +6,15 @@ disable-model-invocation: true
 
 # Sync a project with the template
 
-Run in the project's folder. The user pulls `~/dev-template` first (`git -C ~/dev-template pull`); you don't.
+Run in the project's folder.
+
+## Update the template first
+
+`~/dev-template` is the copy everything syncs from. Bring it up to `origin/main`, which only the user can merge into, so nothing unreviewed comes in:
+1. `git -C ~/dev-template fetch origin`. If it fails, say so and carry on with the local copy.
+2. If it's on `main` with no local changes (`git -C ~/dev-template status --porcelain` is empty): `git -C ~/dev-template merge --ff-only origin/main`, and list the commits it brought in (`git -C ~/dev-template log --oneline <old HEAD>..HEAD`).
+3. Otherwise (local edits, another branch, or the fast-forward fails): leave it as it is, say why, and carry on, noting that the sync may miss newer template changes.
+4. Nothing else there: no `git pull`, reset, stash or checkout. If the new commits changed `setup/devvm/claude-user/` (user-level skills, hooks, `CLAUDE.md`), tell the user to run `/dt-monthly-upkeep` to install them; this run still uses the skill as loaded.
 
 ## Steps
 

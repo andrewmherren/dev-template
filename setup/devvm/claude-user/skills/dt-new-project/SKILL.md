@@ -7,6 +7,7 @@ disable-model-invocation: true
 # Start a new project
 
 Creates `~/projects/<name>` from `~/dev-template/project-template/`.
+First, update `~/dev-template` as in `~/.claude/skills/dt-sync-template/SKILL.md` > Update the template first.
 
 ## Steps
 

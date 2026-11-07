@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Monthly upkeep of the dev VM
 
-The gateway updates itself weekly; this covers the dev VM. Best run after the user has pulled the template (`git -C ~/dev-template pull`); you don't pull.
+The gateway updates itself weekly; this covers the dev VM. Start by updating `~/dev-template` as in `~/.claude/skills/dt-sync-template/SKILL.md` > Update the template first.
 
 **Limits:** don't delete Docker volumes or project files without asking: volumes hold project databases.
 
@@ -26,4 +26,4 @@ The gateway updates itself weekly; this covers the dev VM. Best run after the us
    - What was updated (old → new versions where notable), disk before and after.
    - Whether a reboot is needed (the user runs `sudo reboot` when convenient).
    - Projects behind the template, and projects due a dependency sweep.
-   - Reminders: check the GitHub tokens' expiry dates; pull `~/dev-template` if it changed elsewhere; from Windows, `ssh agent-gateway release-upgrade` (a new Alpine release for the gateway).
+   - Reminders: check the GitHub tokens' expiry dates; from Windows, `ssh agent-gateway release-upgrade` (a new Alpine release for the gateway).

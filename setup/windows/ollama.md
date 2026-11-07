@@ -29,7 +29,7 @@ flowchart LR
    ```
 6. **Models:** pull the ones you want on Windows, e.g. `ollama pull llama3.2`.
 7. **Turn on the gateway rule:** `ssh agent-gateway access add ollama`.
-8. **Tell the VM's agents** (dev VMs set up before this guide): in the VM, `git -C ~/dev-template pull`, then run `/dt-monthly-upkeep`; it updates `~/.claude/CLAUDE.md`.
+8. **Tell the VM's agents** (dev VMs set up before this guide): in the VM, run `/dt-monthly-upkeep`; it updates `~/dev-template` and then `~/.claude/CLAUDE.md`.
 9. **Check** in the VM (`ssh agent-dev`):
    ```bash
    curl -s http://192.168.200.1:11434/api/tags                       # lists your models
