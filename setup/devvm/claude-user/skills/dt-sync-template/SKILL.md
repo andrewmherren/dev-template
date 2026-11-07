@@ -21,7 +21,8 @@ Run in the project's folder.
 1. **Versions:** the project's `.claude/template-version` (the dev-template commit it last synced with; missing in older projects) and `git -C ~/dev-template rev-parse HEAD`. If they're equal, say it's up to date and stop.
 2. **Branch:** `chore/sync-template`, made as in `.claude/rules/engineering-style.md` > Version control.
 3. **Compare**, file by file, under `~/dev-template/project-template/`:
-   - **Template-owned** (update): `.claude/rules/*.md` except `project.md`, `.claude/skills/`, `.claude/hooks/`.
+   - **Template-owned** (update): files in `.claude/rules/` (except `project.md`), `.claude/skills/dt-*/` and `.claude/hooks/` that are in `project-template/` now, or were at the project's version. A file that was there and has since gone is a removal: ask before deleting it. The `dt-` prefix is reserved for template skills.
+   - **The project's own** (leave alone, don't list as differences): anything else in those folders, e.g. a rule file or skill the project added (`.claude/rules/game-dev.md`, `.claude/skills/game-*/`).
    - **Retired** (delete without asking, if present): `.claude/skills/` `upgrade-dependencies`, `remote-device`, `write-docs`, `debug-recorder`, now `dt-` prefixed. Only those four names: other folders in `.claude/skills/` are the project's own. Also point out `next-steps/` files that mention the old names or paths (`.claude/skills/remote-device/...`).
    - **Merged** (add what's new, keep the project's entries): `.claude/settings.json` (permissions and hooks), `.gitignore`, `env.example`.
    - **Project-owned** (never overwrite): `.claude/rules/project.md`, `CLAUDE.md`, `README.md`, `TECH_SPEC.md`, `history/`, `docs/` pages. For these, only point out new sections or index files the template added (e.g. a new `docs/<audience>/README.md`) and offer to add them.
