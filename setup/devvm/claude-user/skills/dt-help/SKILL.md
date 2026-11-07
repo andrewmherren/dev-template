@@ -17,4 +17,4 @@ Works from any folder in the VM. The READMEs are the source of truth: read them 
    - **In this project** (only if the current folder is a project with a `.claude/` folder): any `.claude/skills/` the project added itself, beyond the template's `dt-` ones.
    - End with: "Ask `/dt-help <question>`, or just ask me how to do something."
 3. **A question:** answer it from those files: where to run it (Windows PowerShell, admin PowerShell, the VM, a project), the exact command, and a link to the section it came from (`~/dev-template/setup/README.md` > Day to day). If the READMEs don't cover it, say so instead of guessing.
-4. **Out of date?** If `git -C ~/dev-template status -sb` shows it behind `origin`, say the answer may be out of date: the user pulls it (`git -C ~/dev-template pull`); you don't.
+4. **Out of date?** `git -C ~/dev-template fetch origin`, then if `git -C ~/dev-template status -sb` shows it behind `origin/main`, say the answer may be out of date and that `/dt-sync-template` or `/dt-monthly-upkeep` updates it.
