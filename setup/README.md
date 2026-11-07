@@ -213,6 +213,7 @@ Off until you set them up. Each opens one host on your side of the gateway, made
 
 ## Day to day
 
+- **Forgot how something works:** in the VM, ask Claude, or run `/dt-help` (all commands and routines) or `/dt-help <question>`.
 - **Gateway commands** (`ssh agent-gateway ...`): in a normal (not admin) PowerShell window on Windows, whose prompt starts with `PS`. Not in the VM, and not in VS Code's terminal while VS Code is connected to `agent-dev`: that terminal runs in the VM, where `agent-gateway` doesn't exist ("Could not resolve hostname"). If a window shows `dev@agent-dev`, type `exit` first.
 - **A site is blocked:** from Windows, `ssh agent-gateway denied` lists recent refusals; `ssh agent-gateway allow <domain>` adds one (`.domain.com` for its subdomains too), and `ssh agent-gateway remove <domain>` takes one off. If every setup will need it, add it to [gateway/allowlist.txt](gateway/allowlist.txt) as well.
 - **Openings to your side of the gateway:** `ssh agent-gateway access` lists them ([Optional extras](#optional-extras)).

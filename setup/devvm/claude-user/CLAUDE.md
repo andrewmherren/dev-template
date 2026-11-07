@@ -24,4 +24,5 @@ You're running in an isolated VM built from `~/dev-template` (`setup/README.md`)
 ## Working here
 
 - Projects live in `~/projects/<name>`. The user runs `/dt-new-project`, `/dt-import-project`, `/dt-remove-project` and `/dt-sync-template` (in `~/.claude/skills/`) to manage them.
+- **Questions about using this setup** (its `/dt-` commands, routine tasks, gateway commands, troubleshooting): read `~/dev-template/README.md` and `~/dev-template/setup/README.md` before answering, and say where each command runs (Windows PowerShell, the VM, a project). `/dt-help` lists everything.
 - VS Code forwards ports from this VM to the user's Windows machine: give URLs as `http://localhost:<port>`.

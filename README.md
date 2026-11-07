@@ -25,7 +25,7 @@ A starting point for projects built with Claude Code running with a high level o
 |---|---|
 | `setup/windows/` | VM creation (script and manual), SSH and VS Code settings for Windows |
 | `setup/gateway/` | The Alpine gateway: Squid proxy, allowlist, firewall |
-| `setup/devvm/` | The Ubuntu dev VM: bootstrap script, Claude's user-level config and skills (`/dt-new-project`, `/dt-import-project`, `/dt-remove-project`, `/dt-sync-template`, `/dt-monthly-upkeep`) |
+| `setup/devvm/` | The Ubuntu dev VM: bootstrap script, Claude's user-level config and skills (`/dt-new-project`, `/dt-import-project`, `/dt-remove-project`, `/dt-sync-template`, `/dt-monthly-upkeep`, `/dt-help`) |
 | `setup/maintenance/` | Going back to a checkpoint, rebuilding, getting disk space back |
 | `setup/github-repo-settings.md` | GitHub settings for repos agents push to (rulesets, Actions, security) |
 | `project-template/` | Copied into each new project by `/dt-new-project` |
@@ -33,7 +33,7 @@ A starting point for projects built with Claude Code running with a high level o
 
 ## Skills
 
-Agent procedures are Claude Code skills (`SKILL.md` files). You run them by typing `/<name>` in Claude, in the place shown; everything else is for people.
+Agent procedures are Claude Code skills (`SKILL.md` files). You run them by typing `/<name>` in Claude, in the place shown (type `/dt` to list them); everything else is for people.
 
 | Skill | Run in | When | What it does |
 |---|---|---|---|
@@ -45,6 +45,7 @@ Agent procedures are Claude Code skills (`SKILL.md` files). You run them by typi
 | `/dt-sync-template` | a project | after the template changes | Brings its rules, skills and guardrails up to date, keeping its own edits |
 | `/dt-monthly-upkeep` | the VM, any folder | monthly | Updates the VM and Claude, checks the network fence and hooks, lists projects behind the template or due a dependency sweep |
 | `/dt-upgrade-dependencies` | a project | `review <PR#>` for each Dependabot pull request; `sweep` every few months | Reviews an update (changelog, CI, local checks), or updates every pinned version on patch, minor and per-major branches |
+| `/dt-help` | the VM, any folder | whenever | Lists these commands and the routine tasks, or answers `/dt-help <question>` from these READMEs |
 | `/dt-remote-device` | a project | optional | Lets the project's agent SSH into one device on your network (Raspberry Pi first) |
 
 Two more load by themselves when an agent needs them: `dt-write-docs` (writing `docs/` pages) and `dt-debug-recorder` (building debug recording).
